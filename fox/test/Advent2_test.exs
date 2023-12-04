@@ -1,6 +1,6 @@
-defmodule Advent1Puzz1Test do
+defmodule Advent2Test do
   use ExUnit.Case
-  doctest Advent1Puzz1
+  doctest Advent2
 
   test "example" do
     games = """

@@ -1,4 +1,4 @@
-defmodule Advent1Puzz1 do
+defmodule Advent1 do
 
   @spec tokenize(String.t()) :: [integer()]
   def tokenize("")              do [] end
