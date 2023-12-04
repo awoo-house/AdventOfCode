@@ -10,7 +10,8 @@ defmodule LexiDay1p2Test do
       "xtwone3four" => 24,
       "4nineeightseven2" => 42,
       "zoneight234" => 14,
-      "7pqrstsixteen" => 76
+      "7pqrstsixteen" => 76,
+      "eighthree" => 83
     }
 
     Enum.each(input_output, fn {input, output} ->
