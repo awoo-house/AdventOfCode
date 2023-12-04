@@ -1,4 +1,4 @@
-defmodule Day1Test do
+defmodule Day2Test do
   use ExUnit.Case
   doctest Day2
 
@@ -12,7 +12,7 @@ defmodule Day1Test do
     }
 
     Enum.each(input_output, fn {input, output} ->
-      assert Day2.processLine(input) == output
+      assert Day2.processLineP1(input) == output
     end)
 
   end

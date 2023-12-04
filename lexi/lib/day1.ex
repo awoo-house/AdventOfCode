@@ -1,6 +1,6 @@
 defmodule Day1 do
   @moduledoc """
-  Documentation for `Lexi Day1`.
+  Documentation for `Day1`.
   """
 
 def replaceFirstNumberInString(input) do
