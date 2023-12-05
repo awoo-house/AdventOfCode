@@ -51,6 +51,5 @@ defmodule Advent1 do
       {:ok, input} ->
         IO.puts(findNumbers(input))
     end
-
   end
 end

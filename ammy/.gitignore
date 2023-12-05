@@ -1,0 +1,10 @@
+.elixir_ls/
+**/_build/
+/cover/
+/deps/
+/doc/
+/.fetch
+erl_crash.dump
+*.ez
+aoc2023-*.tar
+/tmp/
