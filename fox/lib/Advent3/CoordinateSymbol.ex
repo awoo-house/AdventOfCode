@@ -1,4 +1,4 @@
 defmodule Advent3.CoordinateSymbol do
-  @enforce_keys [:column, :what]
-  defstruct [:column, :what]
+  @enforce_keys [:column]
+  defstruct [:column, :sym, :num]
 end
