@@ -1,8 +1,8 @@
-defmodule LexiDay1Test do
+defmodule Day1Test do
   use ExUnit.Case
-  doctest LexiDay2
+  doctest Day1
 
-  test "Day 2 Given" do
+  test "Day 1 Given 1" do
     input_output = %{
       "1abc2" => 12,
       "pqr3stu8vwx" => 38,
@@ -11,7 +11,7 @@ defmodule LexiDay1Test do
     }
 
     Enum.each(input_output, fn {input, output} ->
-      assert LexiDay2.processLine(input) == output
+      assert Day1.processLine(input) == output
     end)
 
   end
