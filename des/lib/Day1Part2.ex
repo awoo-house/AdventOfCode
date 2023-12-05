@@ -41,7 +41,8 @@ defmodule Day1Part2 do
     "nine" => "9",
   }
   def digit_map_rev do
-   Enum.map(digit_map(), fn {k, v} -> {String.reverse(k), v} end)
-   |> Map.new()
+    # Enum.map(digit_map(), fn {k, v} -> {String.reverse(k), v} end)
+    # |> Map.new()
+    for {k, v} <- digit_map(), into: %{}, do: {String.reverse(k), v}
   end
 end
