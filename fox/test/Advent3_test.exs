@@ -58,4 +58,21 @@ defmodule Advent3Test do
     assert !Advent3.checkRect(sch, 5, 7)
   end
 
+  test "PartNum Sum" do
+    inp = """
+      467..114..
+      ...*......
+      ..35..633.
+      ......#...
+      617*......
+      .....+.58.
+      ..592.....
+      ......755.
+      ...$.*....
+      .664.598..
+    """
+
+    assert Advent3.partNumberSum(inp) == 4361
+  end
+
 end

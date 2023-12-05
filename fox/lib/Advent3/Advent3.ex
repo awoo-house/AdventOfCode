@@ -4,6 +4,25 @@ defmodule Advent3 do
 
   @type schematic() :: [{ [%CoordinateSymbol{}], integer() }]
 
+
+  @spec partNumberSum(String.t()) :: integer()
+  def partNumberSum(inp) do
+    schematic = processLines(inp)
+
+    Enum.reduce(schematic, 0, fn ({ row, row_num }, row_acc) ->
+      Enum.reduce(row, row_acc, fn
+        (%CoordinateSymbol{ column: col_num, num: n }, acc) when n != nil ->
+          case checkRect(schematic, row_num, col_num) do
+            true  -> n + acc
+            false -> acc
+          end
+        (_, acc) -> acc
+        end)
+    end)
+  end
+
+
+
   @spec processLines(String.t()) :: schematic()
   def processLines(inp) do
     String.split(inp, "\n")
