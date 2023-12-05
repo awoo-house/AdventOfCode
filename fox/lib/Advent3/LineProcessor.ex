@@ -10,7 +10,7 @@ defmodule Advent3.LineProcessor do
   # ..35..633.
   # ......#...
 
-  @spec processLine(String.t()) :: [CoordinateSymbol]
+  @spec processLine(String.t()) :: [%CoordinateSymbol{}]
   def processLine(line) do
     parse(intoToks(line))
   end
@@ -20,7 +20,7 @@ defmodule Advent3.LineProcessor do
     String.to_charlist(inp) |> Enum.with_index
   end
 
-  @spec parse(toks()) :: [CoordinateSymbol]
+  @spec parse(toks()) :: [%CoordinateSymbol{}]
   def parse([]) do [] end
   def parse(ts) do
     case parseBlank(ts) do
@@ -36,7 +36,7 @@ defmodule Advent3.LineProcessor do
     end
   end
 
-  @spec parseNumber(toks()) :: { CoordinateSymbol, charlist() } | :error
+  @spec parseNumber(toks()) :: { %CoordinateSymbol{}, charlist() } | :error
   def parseNumber(toks) do
 
     case Enum.split_while(toks, &tokIsDig/1) do
@@ -56,7 +56,7 @@ defmodule Advent3.LineProcessor do
   def parseBlank([{?., _} | rest]) do rest end
   def parseBlank(_)                do :error end
 
-  @spec parseSymbol(toks()) :: { CoordinateSymbol, charlist() } | :error
+  @spec parseSymbol(toks()) :: { %CoordinateSymbol{}, charlist() } | :error
   def parseSymbol([{chr, idx} | rest]) do
     { %CoordinateSymbol{column: idx, sym: chr}, rest }
   end
