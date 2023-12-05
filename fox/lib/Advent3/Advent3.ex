@@ -32,7 +32,7 @@ defmodule Advent3 do
   def getGears(sch) do
     Enum.reduce(sch, %{}, fn ({ row, row_num }, row_acc) ->
       Enum.reduce(row, row_acc, fn (col_sym, acc) ->
-        case getMaybeGear(sch, row_num, col_sym) do
+        case getMaybeGear(sch, col_sym) do
           [a, b] -> Map.put(acc, col_sym, { a, b })
           _ -> acc
         end
@@ -40,8 +40,8 @@ defmodule Advent3 do
     end)
   end
 
-  @spec getMaybeGear(schematic(), integer(), %CoordinateSymbol{}) :: [%CoordinateSymbol{}]
-  def getMaybeGear(sch, row, %CoordinateSymbol{ column: col, sym: ?* }) do
+  @spec getMaybeGear(schematic(), %CoordinateSymbol{}) :: [%CoordinateSymbol{}]
+  def getMaybeGear(sch, %CoordinateSymbol{ row: row, column: col, sym: ?* }) do
     check_cols = (col-1)..(col+1)
     check_rows = (row-1)..(row+1)
 
@@ -64,7 +64,7 @@ defmodule Advent3 do
     end)
   end
 
-  def getMaybeGear(_, _, _), do: nil
+  def getMaybeGear(_, _), do: nil
 
 
 
@@ -73,7 +73,8 @@ defmodule Advent3 do
     String.split(inp, "\n")
     |> Enum.map(&String.trim/1)
     |> Enum.filter(fn l -> String.length(l) > 1 end)
-    |> Enum.map(&LineProcessor.processLine/1)
+    |> Enum.with_index
+    |> Enum.map(fn {l, idx} -> LineProcessor.processLine(idx, l) end)
     |> Enum.with_index
   end
 

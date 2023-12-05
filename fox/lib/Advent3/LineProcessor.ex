@@ -10,9 +10,9 @@ defmodule Advent3.LineProcessor do
   # ..35..633.
   # ......#...
 
-  @spec processLine(String.t()) :: [%CoordinateSymbol{}]
-  def processLine(line) do
-    parse(intoToks(line))
+  @spec processLine(integer(), String.t()) :: [%CoordinateSymbol{}]
+  def processLine(row, line) do
+    parse(row, intoToks(line))
   end
 
   @spec intoToks(String.t()) :: toks()
@@ -20,24 +20,24 @@ defmodule Advent3.LineProcessor do
     String.to_charlist(inp) |> Enum.with_index
   end
 
-  @spec parse(toks()) :: [%CoordinateSymbol{}]
-  def parse([]) do [] end
-  def parse(ts) do
+  @spec parse(integer(), toks()) :: [%CoordinateSymbol{}]
+  def parse(_, []) do [] end
+  def parse(row, ts) do
     case parseBlank(ts) do
       :error ->
-        case parseNumber(ts) do
-          { num, rest } -> [num | parse(rest)]
+        case parseNumber(row, ts) do
+          { num, rest } -> [num | parse(row, rest)]
           :error ->
-            case parseSymbol(ts) do
-              { sym, rest } -> [sym | parse(rest)]
+            case parseSymbol(row, ts) do
+              { sym, rest } -> [sym | parse(row, rest)]
             end
         end
-      cs -> parse(cs)
+      cs -> parse(row, cs)
     end
   end
 
-  @spec parseNumber(toks()) :: { %CoordinateSymbol{}, charlist() } | :error
-  def parseNumber(toks) do
+  @spec parseNumber(integer(), toks()) :: { %CoordinateSymbol{}, charlist() } | :error
+  def parseNumber(row, toks) do
 
     case Enum.split_while(toks, &tokIsDig/1) do
       { [], _ } -> :error # Not a number
@@ -47,7 +47,7 @@ defmodule Advent3.LineProcessor do
           # :error -> :error # Should never get here...
           { num, _ } ->
             { _, column } = List.first(digToks)
-            { %CoordinateSymbol{ column: column, num: num }, rest }
+            { %CoordinateSymbol{ row: row, column: column, num: num }, rest }
         end
     end
   end
@@ -56,9 +56,9 @@ defmodule Advent3.LineProcessor do
   def parseBlank([{?., _} | rest]) do rest end
   def parseBlank(_)                do :error end
 
-  @spec parseSymbol(toks()) :: { %CoordinateSymbol{}, charlist() } | :error
-  def parseSymbol([{chr, idx} | rest]) do
-    { %CoordinateSymbol{column: idx, sym: chr}, rest }
+  @spec parseSymbol(integer(), toks()) :: { %CoordinateSymbol{}, charlist() } | :error
+  def parseSymbol(row, [{chr, idx} | rest]) do
+    { %CoordinateSymbol{row: row, column: idx, sym: chr}, rest }
   end
 
   def parseSymbol(_) do
