@@ -24,7 +24,7 @@ defmodule Day2Part1 do
     parse("input/day-2.txt")
 
     # Find games with only 12 red, 13 green, 14 blue
-    |> Stream.filter(fn %Game{id: id, draws: draws} ->
+    |> Stream.filter(fn %Game{draws: draws} ->
       Enum.all?(draws, fn %Draw{red: red, green: green, blue: blue} ->
         red <= 12 && green <= 13 && blue <= 14
       end)
