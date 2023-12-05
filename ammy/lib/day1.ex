@@ -7,7 +7,7 @@ defmodule AmmyOneOne do
   end
 
   def run do
-    case File.read("input/ammy/one-one.in") do
+    case File.read("input/day1.in") do
       {:ok, input} ->
         ans = String.split(input)
           |> Enum.map(fn l -> extract_digits(l) end)
