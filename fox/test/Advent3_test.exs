@@ -75,4 +75,26 @@ defmodule Advent3Test do
     assert Advent3.partNumberSum(inp) == 4361
   end
 
+  test "getMaybeGear 1" do
+    assert Advent3.getMaybeGear(schematic(), 1, %C{ column: 3, sym: ?* }) ==
+      [%C{ column: 2, num: 35 }, %C{ column: 0, num: 467 }]
+  end
+
+  test "getMaybeGear 2" do
+    assert Advent3.getMaybeGear(schematic(), 4, %C{ column: 3, sym: ?* }) ==
+      [%C{ column: 0, num: 617 }]
+  end
+
+  test "getGears" do
+    expected = %{
+      %C{ column: 3, sym: ?* } => { %C{ column: 2, num: 35 }, %C{ column: 0, num: 467 } },
+      %C{ column: 5, sym: ?* } => { %C{ column: 5, num: 598}, %C{ column: 6, num: 755 } }
+    }
+
+    assert Advent3.getGears(schematic()) == expected
+  end
+
+  test "getGearRatioSum" do
+    assert Advent3.getGearRatioSum(schematic()) == 467835
+  end
 end
