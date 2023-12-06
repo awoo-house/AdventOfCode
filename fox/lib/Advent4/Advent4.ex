@@ -42,11 +42,16 @@ defmodule Advent4 do
     end)
   end
 
-
   @spec incCardCount(cardcounts(), integer(), integer(), integer()) :: cardcounts()
-  def incCardCount(counts, n, l, by \\ 1) do
+  def incCardCount(counts, n, l, by)
+  def incCardCount(counts, _n, 0, _by), do: counts
+  def incCardCount(counts, n, l, by) do
     Enum.reduce((n..(n+l-1)), counts, fn
-      (n, acc) -> Map.update(acc, n, 1, &(&1 + by))
+      (n, acc) ->
+        case Map.get(acc, n) do
+          nil -> acc
+          count -> Map.put(acc, n, count + by)
+        end
     end)
   end
 
@@ -55,14 +60,15 @@ defmodule Advent4 do
   def runCardMap(cards, counts, n, m) do
     cardDuplCount = cardMatchLength(Enum.at(cards, n))
     incBy = counts[n]
-    newCount = incCardCount(counts, n, cardDuplCount, incBy)
+    newCount = incCardCount(counts, n+1, cardDuplCount, incBy)
+
     runCardMap(cards, newCount, n + 1, m)
   end
 
   @spec runCards(list(card())) :: cardcounts()
   def runCards(cards) do
     initialCounts = Enum.map(0..(length(cards)-1), fn x -> { x, 1 } end) |> Map.new
-    runCardMap(cards, initialCounts, 0, length(cards)-1)
+    runCardMap(cards, initialCounts, 0, length(cards))
   end
 
   def run do
@@ -74,6 +80,8 @@ defmodule Advent4 do
                 |> Enum.filter(&(String.length(&1) > 0))
                 |> Enum.map(&Advent4.parseLine/1)
 
+        IO.puts("Got #{length(cards)} cards.")
+
         card_counts = runCards(cards)
 
         card_total = card_counts
@@ -83,5 +91,4 @@ defmodule Advent4 do
         IO.inspect(card_total)
     end
   end
-
 end
