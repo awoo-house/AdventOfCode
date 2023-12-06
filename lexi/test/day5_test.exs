@@ -62,6 +62,25 @@ defmodule Day5Test do
   test "parse" do
 
     res = Almanac.parse(%{}, @input)
-    IO.inspect(res)
+    # IO.inspect(res)
+    # IO.inspect(res.maps[{:seed, :soil}][88])
+    # assert res.seeds == [79,14,55,13]
+    assert Day5.get_mapped_value(res, {:seed, :soil}, 79) == 81
+    assert Day5.get_mapped_value(res, {:seed, :soil}, 14) == 14
+    assert Day5.get_mapped_value(res, {:seed, :soil}, 55) == 57
+    assert Day5.get_mapped_value(res, {:seed, :soil}, 13) == 13
+  end
+
+  test "get_lowest_location" do
+
+    res = Almanac.parse(%{}, @input)
+
+    # wl = res.maps[{:fertilizer, :water}]
+    # Enum.sort(wl)
+    # |> Enum.each(fn x -> IO.inspect(x) end)
+
+    # IO.inspect()
+    e = Day5.get_lowest_location(res)
+    assert e == 35
   end
 end
