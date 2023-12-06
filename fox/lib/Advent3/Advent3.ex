@@ -30,7 +30,7 @@ defmodule Advent3 do
 
   @spec getGears(schematic()) :: %{ %CoordinateSymbol{} => { %CoordinateSymbol{}, %CoordinateSymbol{} }}
   def getGears(sch) do
-    Enum.reduce(sch, %{}, fn ({ row, row_num }, row_acc) ->
+    Enum.reduce(sch, %{}, fn ({ row, _ }, row_acc) ->
       Enum.reduce(row, row_acc, fn (col_sym, acc) ->
         case getMaybeGear(sch, col_sym) do
           [a, b] -> Map.put(acc, col_sym, { a, b })
