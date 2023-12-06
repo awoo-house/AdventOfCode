@@ -27,7 +27,6 @@ defmodule Day4 do
   end
 
   def get_total_number_of_cards(cards) do
-    lns = Map.new(cards)
     starting = cards
     |> Enum.map(fn {id, _ln} -> {id, 1} end)
     |> Map.new
@@ -44,7 +43,7 @@ defmodule Day4 do
     end)
     IO.inspect(e)
     e
-    |> Enum.reduce(0, fn {id, num}, acc -> acc + (num*Map.get(lns, id)) end)
+    |> Enum.reduce(0, fn {_id, num}, acc -> acc + num end)
   end
 
 
@@ -63,8 +62,9 @@ defmodule Day4 do
 
   def runP2 do
     case File.read("./lib/inputs/day4.txt") do
-      {:ok, input} -> String.split(input, "\r\n", trim: true)
+      {:ok, input} -> String.split(input, "\n", trim: true)
         |> Enum.map(fn x -> parse_card(x) end)
+        |> Day4.get_total_number_of_cards
         |> IO.inspect
       {:error, reason} -> IO.write(reason)
     end

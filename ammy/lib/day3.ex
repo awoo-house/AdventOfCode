@@ -29,7 +29,7 @@ defmodule AmmyThree do
         if is_a_symbol(char) do
           indices = [
             {row_index - 1, col_index - 1}, {row_index - 1, col_index}, {row_index - 1, col_index + 1},
-            {row_index, col_index - 1},                               {row_index, col_index + 1},
+            {row_index, col_index - 1},                                 {row_index, col_index + 1},
             {row_index + 1, col_index - 1}, {row_index + 1, col_index}, {row_index + 1, col_index + 1}
           ]
 
