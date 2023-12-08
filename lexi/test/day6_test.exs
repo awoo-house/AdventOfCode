@@ -1,6 +1,6 @@
-defmodule Day1Test do
+defmodule Day6Test do
   use ExUnit.Case
-  doctest Day1
+  doctest Day6
 
   test "Day 6 Given 1" do
     input_output = %{
