@@ -28,7 +28,7 @@ defmodule AmmySix do
         {times, distances} = read_times_and_distances(input)
 
         ans =
-          Enum.reduce(0..(length(times) - 1), 1, fn _, acc ->
+          Enum.reduce(0..(length(times) - 1), 1, fn _, _ ->
             Enum.zip(times, distances)
             |> Enum.map(fn {t, d} ->
               speeds = possible_speeds(t)
