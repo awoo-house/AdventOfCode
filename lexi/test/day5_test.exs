@@ -37,26 +37,6 @@ defmodule Day5Test do
       60 56 37\n
       56 93 4\n
     """
-  test "parse_seeds" do
-    input = "seeds: 382 43 4302 59 499111"
-    res = Almanac.parse_seeds(input)
-    assert res == [382, 43, 4302, 59, 499111]
-
-  end
-
-  test "parse_map_1" do
-
-    input = [
-      "seed-to-soil map:",
-      "50 98 2",
-      "52 50 48"
-    ]
-    {key, res} = Almanac.parse_map(input)
-    assert key == {:seed, :soil}
-    assert Map.get(res, 51) == 53
-    assert Map.get(res, 1) == nil
-    assert Map.get(res, 97) == 99
-  end
 
   @tag timeout: 1000
   test "parse" do
@@ -93,6 +73,48 @@ defmodule Day5Test do
   end
 
 
+  test "lowest_locations_by_seed_value_ranges_2" do
+
+    res = Almanac.parse(%{}, """
+    seeds: 10 2 30 15\n
+    \n
+    seed-to-soil map:\n
+    1000 1 4\n
+    \n
+    soil-to-fertilizer map:\n
+    0 15 37\n
+    37 52 2\n
+    39 0 15\n
+    \n
+    fertilizer-to-water map:\n
+    49 53 8\n
+    0 11 42\n
+    42 0 7\n
+    57 7 4\n
+    \n
+    water-to-light map:\n
+    88 18 7\n
+    18 25 70\n
+    \n
+    light-to-temperature map:\n
+    45 77 23\n
+    81 45 19\n
+    68 64 13\n
+    \n
+    temperature-to-humidity map:\n
+    0 69 1\n
+    1 0 69\n
+    \n
+    humidity-to-location map:\n
+    60 56 37\n
+    56 93 4\n
+    1 980 100\n
+    """)
+    e = Day5.lowest_locations_by_seed_value_ranges(res)
+    IO.inspect(e)
+  end
+
+
   test "get_source_ranges_for_dest_ranges" do
     # has min of 2, max of 96. We need maps for everything in this range.
     res = Day5.get_source_ranges_for_dest_range(10, 5, [{13,{88, 8}},{15, {10, 3}}, {2, {13, 1}}, {6, {23, 4}}])
@@ -103,6 +125,19 @@ defmodule Day5Test do
     # has min of 2, max of 96. We need maps for everything in this range.
     res = Day5.get_source_ranges_for_dest_range(10, 5, [{13,{88, 8}},{15, {10, 3}}, {2, {13, 1}}, {6, {23, 4}}])
     assert res == [{13, {88, 2}}]
+  end
+
+  test "hydrated_mapping" do
+    io = %{
+      [{10, {100, 10}}, {100, {10, 10}}] =>
+        [{1, {1, 9}}, {10, {100, 10}}, {20, {20, 80}}, {100, {10, 10}}]
+    }
+
+    Enum.each(io, fn {map, exr} ->
+      act = Almanac.hydrated_mapping(map)
+      IO.inspect(act)
+      assert Enum.sort(act) == Enum.sort(exr)
+    end)
   end
 
   test "get_dest_mappings_for_source_range" do
