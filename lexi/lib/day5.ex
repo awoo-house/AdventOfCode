@@ -22,7 +22,7 @@ defmodule Almanac do
   end
   def parse_map_internal([dest_start | [source_start | [range_length]]]) do
     [
-      {source_start, {dest_start, range_length}}
+      {dest_start, {source_start, range_length}}
     ]
   end
   def add_mapping(input, acc, key) do
@@ -94,7 +94,7 @@ defmodule Day5 do
   def get_mapped_value(almanac, key, val) do
     IO.puts("Getting mapped value #{inspect(key)} for #{val}")
     in_range = almanac.maps[key]
-    |> Enum.map(fn {src, {dest, range}} ->
+    |> Enum.map(fn {dest, {src, range}} ->
       if val >= src and val < src + range do
         # how much above src is val?
         above = val-src
@@ -120,8 +120,102 @@ defmodule Day5 do
     end)
     |> Enum.sort
     |> List.first
+  end
+
+  # Source Range Destination starts higher than the destination can ever get to
+  def get_dest_mappings_for_source_range(dest_start, count, {t_dest_start, {_t_source_start, _t_len}})
+    when dest_start + count <= t_dest_start do
+    nil
+  end
+
+  # Destination starts higher than Source Range Destination ever gets to.
+  def get_dest_mappings_for_source_range(dest_start, _count, {t_dest_start, {_t_source_start, t_len}})
+    when t_dest_start + t_len <= dest_start do
+    nil
+  end
+
+  # The destination range is fully encompassed by the Source Range Destination
+  def get_dest_mappings_for_source_range(dest_start, count, {t_dest_start, {t_source_start, t_len}})
+    when dest_start >= t_dest_start
+      and (dest_start + count) < (t_dest_start + t_len) do
+    diff = t_source_start + (dest_start - t_dest_start)
+    {dest_start, {diff, count}}
+  end
+
+  # The destination range fully encompasses the Source Range Destination
+  def get_dest_mappings_for_source_range(dest_start, count, {t_dest_start, {t_source_start, t_len}})
+    when t_dest_start >= dest_start
+      and (dest_start + count) >= (t_dest_start + t_len) do
+    {t_dest_start, {t_source_start, t_len}}
+  end
+
+  # The destination range ONLY intersects with the lower bound of the Source Range Destination
+  def get_dest_mappings_for_source_range(dest_start, count, {t_dest_start, {t_source_start, t_len}})
+    when dest_start < t_dest_start
+      and (dest_start + count) < (t_dest_start + t_len) do
+    diff = count - (t_dest_start - dest_start)
+    {t_dest_start, {t_source_start, diff}}
+  end
+
+  # The destination range ONLY intersects with the upper bound of the Source Range Destination
+  def get_dest_mappings_for_source_range(dest_start, count, {t_dest_start, {t_source_start, t_len}})
+    when dest_start > t_dest_start
+      and (dest_start + count) >= (t_dest_start + t_len) do
+    count_diff = t_len - (dest_start - t_dest_start)
+    source_start_diff = t_source_start + (dest_start - t_dest_start)
+    {dest_start, {source_start_diff, count_diff}}
+  end
+
+  # We're going to build the location -> seed ranges
+  def get_source_ranges_for_dest_range(dest_start, count, all_source_ranges)  do
+    Enum.map(all_source_ranges, fn x ->
+      get_dest_mappings_for_source_range(dest_start, count, x)
+    end)
+    |> Enum.filter(fn x -> x end)
+  end
+
+
+  def get_source_ranges_for_dest_ranges(source_and_dest_ranges)  do
+    Enum.flat_map(source_and_dest_ranges, fn {dest_start, count, all_source_ranges} ->
+      get_source_ranges_for_dest_range(dest_start, count, all_source_ranges)
+    end)
+    |> IO.inspect
+  end
+
+
+  def lowest_locations_by_seed_value_ranges(almanac) do
+    location_key = {:humidity, :location }
+    sorted_locations = Enum.sort(almanac.maps[location_key])
+    IO.inspect(sorted_locations)
+    rr = Enum.map(sorted_locations, fn {location_start, {humidity_start, range}} ->
+
+      IO.inspect("-----------")
+      IO.inspect({location_start, humidity_start, range})
+
+      acc_init = %{
+        :this_dest_start => location_start,
+        :this_dest_count => range
+      }
+      all_other_keys = Enum.filter(Almanac.keys, fn x -> x != location_key end)
+      List.foldr(all_other_keys, acc_init, fn key, acc ->
+        dest_start = acc[:this_dest_start]
+        dest_count = acc[:this_dest_count]
+        IO.inspect("============")
+        IO.inspect(key)
+        source_ranges = Enum.sort(almanac.maps[key])
+
+        IO.inspect(source_ranges)
+        uu = get_source_ranges_for_dest_range(dest_start, dest_count, source_ranges)
+        IO.inspect(uu)
+      end)
+      []
+        # acc ++ sorted_locations
+    end)
+    IO.inspect(rr)
+
 
   end
+
   def runP1 do
     case File.read("./lib/inputs/day5.txt") do
       {:ok, input} -> Almanac.parse(%{}, input)

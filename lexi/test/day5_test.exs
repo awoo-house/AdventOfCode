@@ -80,7 +80,57 @@ defmodule Day5Test do
     # |> Enum.each(fn x -> IO.inspect(x) end)
 
     # IO.inspect()
+    IO.inspect(res)
     e = Day5.get_lowest_location(res)
     assert e == 35
+  end
+
+  test "lowest_locations_by_seed_value_ranges" do
+
+    res = Almanac.parse(%{}, @input)
+    e = Day5.lowest_locations_by_seed_value_ranges(res)
+    IO.inspect(e)
+  end
+
+
+  test "get_source_ranges_for_dest_ranges" do
+    # has min of 2, max of 96. We need maps for everything in this range.
+    res = Day5.get_source_ranges_for_dest_range(10, 5, [{13,{88, 8}},{15, {10, 3}}, {2, {13, 1}}, {6, {23, 4}}])
+    assert res == [{13, {88, 2}}]
+  end
+
+  test "get_source_ranges_for_dest_range" do
+    # has min of 2, max of 96. We need maps for everything in this range.
+    res = Day5.get_source_ranges_for_dest_range(10, 5, [{13,{88, 8}},{15, {10, 3}}, {2, {13, 1}}, {6, {23, 4}}])
+    assert res == [{13, {88, 2}}]
+  end
+
+  test "get_dest_mappings_for_source_range" do
+    io = [
+      %{:dest_start=>10, :dest_count=>5,  :sr_dest_start=>15, :sr_count=>3,  :sr_source_start=>40, :exp=>nil},
+      %{:dest_start=>10, :dest_count=>5,  :sr_dest_start=>25, :sr_count=>3,  :sr_source_start=>40, :exp=>nil},
+      %{:dest_start=>10, :dest_count=>5,  :sr_dest_start=>3,  :sr_count=>3,  :sr_source_start=>40, :exp=>nil},
+      %{:dest_start=>10, :dest_count=>5,  :sr_dest_start=>7,  :sr_count=>3,  :sr_source_start=>40, :exp=>nil}, # 7, 8, 9
+      %{:dest_start=>15, :dest_count=>5,  :sr_dest_start=>12, :sr_count=>4,  :sr_source_start=>28, :exp=>{15, {31, 1}}},
+      %{:dest_start=>15, :dest_count=>25, :sr_dest_start=>12, :sr_count=>4,  :sr_source_start=>28, :exp=>{15, {31, 1}}},
+      %{:dest_start=>10, :dest_count=>5,  :sr_dest_start=>10, :sr_count=>3,  :sr_source_start=>40, :exp=>{10, {40, 3}}},
+      %{:dest_start=>10, :dest_count=>5,  :sr_dest_start=>14, :sr_count=>3,  :sr_source_start=>40, :exp=>{14, {40, 1}}},
+      %{:dest_start=>10, :dest_count=>5,  :sr_dest_start=>8,  :sr_count=>20, :sr_source_start=>40, :exp=>{10, {42, 5}}},
+      %{:dest_start=>10, :dest_count=>25, :sr_dest_start=>8,  :sr_count=>20, :sr_source_start=>40, :exp=>{10, {42, 18}}},
+      %{:dest_start=>10, :dest_count=>25, :sr_dest_start=>10, :sr_count=>20, :sr_source_start=>40, :exp=>{10, {40, 20}}},
+      %{:dest_start=>10, :dest_count=>20, :sr_dest_start=>10, :sr_count=>20, :sr_source_start=>40, :exp=>{10, {40, 20}}},
+      %{:dest_start=>10, :dest_count=>20, :sr_dest_start=>10, :sr_count=>25, :sr_source_start=>40, :exp=>{10, {40, 20}}},
+      %{:dest_start=>10, :dest_count=>5,  :sr_dest_start=>8,  :sr_count=>3,  :sr_source_start=>19, :exp=>{10, {21, 1}}},
+      %{:dest_start=>10, :dest_count=>15, :sr_dest_start=>12, :sr_count=>5,  :sr_source_start=>24, :exp=>{12, {24, 5}}},
+      %{:dest_start=>10, :dest_count=>15, :sr_dest_start=>22, :sr_count=>5,  :sr_source_start=>24, :exp=>{22, {24, 3}}},
+      %{:dest_start=>10, :dest_count=>15, :sr_dest_start=>22, :sr_count=>5,  :sr_source_start=>24, :exp=>{22, {24, 3}}},
+    ]
+    Enum.each(io, fn x ->
+
+      source_range = {x[:sr_dest_start], {x[:sr_source_start], x[:sr_count]}}
+      res = Day5.get_dest_mappings_for_source_range(x[:dest_start], x[:dest_count], source_range)
+      IO.inspect(x)
+      assert res == x[:exp]
+    end)
   end
 end
