@@ -1,10 +1,13 @@
 defmodule AmmySix do
   def read_times_and_distances(content) do
     lines = String.split(content, "\n", trim: true)
-    times_line = String.replace(Enum.at(lines, 0), ~r/[^\s\d]+/, "")
+    # for part one
+    # times_line = String.replace(Enum.at(lines, 0), ~r/[^\s\d]+/, "")
+    times_line = String.replace(Enum.at(lines, 0), ~r/[^\d]+/, "")
     times_line = String.split(times_line, ~r/\s+/, trim: true)
 
-    distances_line = String.replace(Enum.at(lines, 1), ~r/[^\s\d]+/, "")
+    # distances_line = String.replace(Enum.at(lines, 1), ~r/[^\s\d]+/, "")
+    distances_line = String.replace(Enum.at(lines, 1), ~r/[^\d]+/, "")
     distances_line = String.split(distances_line, ~r/\s+/, trim: true)
 
     times = Enum.map(times_line, &Integer.parse/1)
@@ -25,7 +28,7 @@ defmodule AmmySix do
         {times, distances} = read_times_and_distances(input)
 
         ans =
-          Enum.reduce(0..length(times)-1, 1, fn _, acc ->
+          Enum.reduce(0..(length(times) - 1), 1, fn _, acc ->
             Enum.zip(times, distances)
             |> Enum.map(fn {t, d} ->
               speeds = possible_speeds(t)
@@ -34,6 +37,7 @@ defmodule AmmySix do
             end)
           end)
           |> Enum.reduce(1, &(&1 * &2))
+
         IO.inspect(ans)
 
       {:error, reason} ->
