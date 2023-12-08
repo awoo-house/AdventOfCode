@@ -4,7 +4,8 @@ defmodule Day1Test do
 
   test "Day 6 Given 1" do
     input_output = %{
-      7 => [0, 6, 10, 12, 12, 10, 6, 0]
+      7 => [0, 6, 10, 12, 12, 10, 6, 0],
+      10 => []
     }
 
     Enum.each(input_output, fn {input, output} ->
@@ -26,5 +27,17 @@ defmodule Day1Test do
 
   test "ways_to_win" do
     assert Day6.ways_to_win({30, 200}) == 9
+  end
+
+  test "get_index_of_ways_to_win_that_first_wins" do
+    input_output = %{
+      {7, 4} => 1,
+      {10, 13} => 2,
+      {10, 24} => 4,
+    }
+
+    Enum.each(input_output, fn {input, output} ->
+      assert Day6.get_index_of_ways_to_win_that_first_wins(input) == output
+    end)
   end
 end
