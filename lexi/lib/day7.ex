@@ -1,12 +1,21 @@
 defmodule Day7 do
 
-  defp hand_value(counts) when counts == [5],         do: 7000000
-  defp hand_value(counts) when counts == [4,1],       do: 6000000
-  defp hand_value(counts) when counts == [3,2],       do: 5000000
-  defp hand_value(counts) when counts == [3,1,1],     do: 4000000
-  defp hand_value(counts) when counts == [2,2,1],     do: 3000000
-  defp hand_value(counts) when counts == [2,1,1,1],   do: 2000000
-  defp hand_value(counts) when counts == [1,1,1,1,1], do: 1000000
+  def hand_value(jokers, counts) do
+    case counts do
+      [] -> [jokers]
+      [h] -> [h + jokers]
+      [h | r] -> [h + jokers] ++ r
+    end
+    |> hand_value
+  end
+
+  def hand_value(counts) when counts == [5],         do: 7000000
+  def hand_value(counts) when counts == [4,1],       do: 6000000
+  def hand_value(counts) when counts == [3,2],       do: 5000000
+  def hand_value(counts) when counts == [3,1,1],     do: 4000000
+  def hand_value(counts) when counts == [2,2,1],     do: 3000000
+  def hand_value(counts) when counts == [2,1,1,1],   do: 2000000
+  def hand_value(counts) when counts == [1,1,1,1,1], do: 1000000
 
   def card_value(card) when card == "2",  do: 2
   def card_value(card) when card == "3",  do: 3
@@ -31,12 +40,14 @@ defmodule Day7 do
   def get_sorting_value(hand) do
     # IO.inspect(hand)
     cards = String.graphemes(hand)
-    card_copies = Enum.reduce(cards, %{}, fn char, acc ->
+    no_jokers = Enum.filter(cards, fn char -> char != "J" end)
+    jokers = Enum.count(cards, fn char -> char == "J" end)
+    card_copies = Enum.reduce(no_jokers, %{}, fn char, acc ->
       Map.update(acc, char, 1,  &(&1 + 1))
     end)
     |> Map.values
     |> Enum.sort(:desc)
-    hv = hand_value(card_copies)
+    hv = hand_value(jokers, card_copies)
     # IO.inspect(hv)
 
     card_vals = Enum.with_index(cards, fn card, idx ->
@@ -66,7 +77,7 @@ defmodule Day7 do
     end)
   end
 
-  def runP1 do
+  def run do
     case File.read("./lib/inputs/day7.txt") do
       {:ok, input} -> parse(input)
         |> sort_hands
@@ -75,18 +86,7 @@ defmodule Day7 do
           {{_, {h, bid}}, idx} = x
           acc + (bid * idx)
         end)
-        # |> Enum.reduce(1, fn {t, r}, acc -> acc * get_index_of_ways_to_win_that_first_wins({t, r}) end)
         |> IO.inspect
-      {:error, reason} -> IO.write(reason)
-    end
-  end
-
-  def runP2 do
-    case File.read("./lib/inputs/day7.txt") do
-      {:ok, input} ->
-        IO.inspect(input)
-        # inp = parse_part2(input)
-        # IO.inspect(get_index_of_ways_to_win_that_first_wins(List.first(inp)))
       {:error, reason} -> IO.write(reason)
     end
   end
