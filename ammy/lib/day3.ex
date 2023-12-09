@@ -34,7 +34,7 @@ defmodule AmmyThree do
       row
       |> Enum.with_index()
       |> Enum.filter(fn {char, _col_index} -> is_a_symbol.(char) end)
-      |> Enum.map(fn {char, col_index} -> {row_index, col_index} end)
+      |> Enum.map(fn {_, col_index} -> {row_index, col_index} end)
     end)
   end
 
@@ -57,7 +57,7 @@ defmodule AmmyThree do
       row
       |> Enum.with_index()
       |> Enum.filter(fn {char, _col_index} -> is_a_number.(char) end)
-      |> Enum.map(fn {char, col_index} -> {row_index, col_index} end)
+      |> Enum.map(fn {_, col_index} -> {row_index, col_index} end)
     end)
   end
 

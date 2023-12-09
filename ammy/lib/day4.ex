@@ -10,8 +10,7 @@ defmodule AmmyFour do
   def process_one(card) do
     c = String.replace(card, ~r/.*\: /, "")
 
-    results =
-      String.split(c, "|", trim: true)
+    String.split(c, "|", trim: true)
       |> calculate_score()
   end
 
