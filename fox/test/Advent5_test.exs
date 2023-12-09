@@ -17,4 +17,15 @@ defmodule Advent5Test do
 
     IO.inspect(parse)
   end
+
+  test "get_output_id" do
+    entry = %{ source_start: 98, dest_start: 50, length: 2 }
+    assert Advent5.get_output_id(entry, 20) == 20
+    assert Advent5.get_output_id(entry, 97) == 97
+
+    assert Advent5.get_output_id(entry, 98) == 50
+    assert Advent5.get_output_id(entry, 99) == 51
+
+    assert Advent5.get_output_id(entry, 100) == 100
+  end
 end

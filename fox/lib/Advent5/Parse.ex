@@ -3,7 +3,8 @@ defmodule Advent5.Parse do
   @type toks() :: list(Token.t())
 
   @type mapEntry() :: %{ to_map: atom(), source_start: integer(), dest_start: integer(), length: integer() }
-  @type almanac() :: %{ seeds: list(integer()), maps: %{ atom() => list(mapEntry()) } }
+  @type almanacMaps() :: %{ atom() => list(mapEntry()) }
+  @type almanac() :: %{ seeds: list(integer()), maps: almanacMaps() }
   @type parseState() :: %{ from_map: atom(), dest_map: atom(), current: almanac() }
 
   @type parseResult() :: parseState()
