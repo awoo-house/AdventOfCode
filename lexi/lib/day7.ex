@@ -1,14 +1,13 @@
 defmodule Day7 do
 
-  defp hand_value(counts) when counts == [5],         do: 70000
-  defp hand_value(counts) when counts == [4,1],       do: 60000
-  defp hand_value(counts) when counts == [3,2],       do: 50000
-  defp hand_value(counts) when counts == [3,1,1],     do: 40000
-  defp hand_value(counts) when counts == [2,2,1],     do: 30000
-  defp hand_value(counts) when counts == [2,1,1,1],   do: 20000
-  defp hand_value(counts) when counts == [1,1,1,1,1], do: 10000
+  defp hand_value(counts) when counts == [5],         do: 7000000
+  defp hand_value(counts) when counts == [4,1],       do: 6000000
+  defp hand_value(counts) when counts == [3,2],       do: 5000000
+  defp hand_value(counts) when counts == [3,1,1],     do: 4000000
+  defp hand_value(counts) when counts == [2,2,1],     do: 3000000
+  defp hand_value(counts) when counts == [2,1,1,1],   do: 2000000
+  defp hand_value(counts) when counts == [1,1,1,1,1], do: 1000000
 
-  def card_value(card) when card == "1",  do: 1
   def card_value(card) when card == "2",  do: 2
   def card_value(card) when card == "3",  do: 3
   def card_value(card) when card == "4",  do: 4
@@ -18,19 +17,19 @@ defmodule Day7 do
   def card_value(card) when card == "8",  do: 8
   def card_value(card) when card == "9",  do: 9
   def card_value(card) when card == "T",  do: 10
-  def card_value(card) when card == "J",  do: 11
-  def card_value(card) when card == "Q",  do: 12
-  def card_value(card) when card == "K",  do: 13
-  def card_value(card) when card == "A",  do: 14
+  def card_value(card) when card == "J",  do: 1
+  def card_value(card) when card == "Q",  do: 11
+  def card_value(card) when card == "K",  do: 12
+  def card_value(card) when card == "A",  do: 13
 
-  def index_mult(idx) when idx == 0, do: 40
-  def index_mult(idx) when idx == 1, do: 30
-  def index_mult(idx) when idx == 2, do: 20
-  def index_mult(idx) when idx == 3, do: 10
+  def index_mult(idx) when idx == 0, do: 50000
+  def index_mult(idx) when idx == 1, do: 3300
+  def index_mult(idx) when idx == 2, do: 220
+  def index_mult(idx) when idx == 3, do: 15
   def index_mult(idx) when idx == 4, do: 1
 
   def get_sorting_value(hand) do
-    IO.inspect(hand)
+    # IO.inspect(hand)
     cards = String.graphemes(hand)
     card_copies = Enum.reduce(cards, %{}, fn char, acc ->
       Map.update(acc, char, 1,  &(&1 + 1))
@@ -38,16 +37,16 @@ defmodule Day7 do
     |> Map.values
     |> Enum.sort(:desc)
     hv = hand_value(card_copies)
-    IO.inspect(hv)
+    # IO.inspect(hv)
 
     card_vals = Enum.with_index(cards, fn card, idx ->
       v = card_value(card) * index_mult(idx)
-      IO.puts("The card #{card} at index #{idx} has value #{v}")
+      # IO.puts("The card #{card} at index #{idx} has value #{v}")
       v
     end)
     |> Enum.reduce(0, &(&1 + &2))
 
-    IO.inspect(card_vals)
+    # IO.inspect(card_vals)
     card_vals + hv
   end
 
@@ -55,7 +54,7 @@ defmodule Day7 do
     Enum.map(hands, fn {hand, bid} ->
       { get_sorting_value(hand), {hand, bid} }
     end)
-    |> Enum.sort_by(fn {s, h} -> s end, :desc)
+    |> Enum.sort_by(fn {s, h} -> s end, :asc)
   end
 
   def parse(input) do
@@ -70,6 +69,12 @@ defmodule Day7 do
   def runP1 do
     case File.read("./lib/inputs/day7.txt") do
       {:ok, input} -> parse(input)
+        |> sort_hands
+        |> Enum.with_index(1)
+        |> Enum.reduce(0, fn x, acc ->
+          {{_, {h, bid}}, idx} = x
+          acc + (bid * idx)
+        end)
         # |> Enum.reduce(1, fn {t, r}, acc -> acc * get_index_of_ways_to_win_that_first_wins({t, r}) end)
         |> IO.inspect
       {:error, reason} -> IO.write(reason)
