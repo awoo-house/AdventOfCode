@@ -46,7 +46,7 @@ defmodule Almanac do
     highest_so_far = Map.get(res, :last_number_mapped)
     if highest_so_far < highest_number_to_map do
       diff = highest_number_to_map - highest_so_far
-      Map.put(res, int, int ++ {highest_so_far, {highest_so_far, diff}})
+      Map.put(res, :new_mapping, int ++ [{ highest_so_far + 1, {highest_so_far + 1, highest_number_to_map}}])
       |> Map.get(:new_mapping)
     else
       int
@@ -134,7 +134,7 @@ defmodule Almanac do
             mm = if x == {:humidity, :location} do
               List.flatten(res[:maps][x])
             else
-              hydrated_mapping(List.flatten(res[:maps][x]), biggest_num)
+              hydrated_mapping(List.flatten(res[:maps][x]), biggest_num * 2)
             end
             {x, mm }
           end)
@@ -240,6 +240,7 @@ defmodule Day5 do
 
   # We're going to build the location -> seed ranges
   def get_source_ranges_for_dest_range(dest_start, count, all_source_ranges)  do
+    IO.inspect("000000000000000000")
     IO.inspect(all_source_ranges)
     Enum.map(all_source_ranges, fn x ->
       get_dest_mappings_for_source_range(dest_start, count, x)
@@ -260,67 +261,101 @@ defmodule Day5 do
   # which should break into
   # temp 70...80 -> humid 70...80, AND temp 81...90 -> humid 91...100, AND temp 90...100 -> humid 81...90, AND temp 100 -> humid 100
 
-  def lowest_locations_by_seed_value_ranges(almanac) do
-    location_key = {:humidity, :location }
-    sorted_locations = Enum.sort(almanac.maps[location_key])
-    IO.inspect(sorted_locations)
-    rr = Enum.flat_map(sorted_locations, fn {location_start, {humidity_start, range1}} ->
+  def flatten_mappings(from_map, to_map) do
 
-      IO.inspect("STARTING inverse map creation. Location #{location_start} .... #{location_start + range1}")
-      IO.inspect({location_start, humidity_start, range1})
+    s_from = Enum.sort(from_map)
+    s_to = Enum.sort(to_map)
 
-      IO.inspect("ABOUT TO GET INVERSE RANGES FOR {:temperature, :humidity} AGAINST HUMIDITY START #{humidity_start} AND RANGE #{range1}")
-      temperature_ranges_for_this_location =
-        get_source_ranges_for_dest_range(humidity_start, range1, almanac.maps[{:temperature, :humidity}])
-
-      IO.inspect("We believe that for the location range of (#{location_start}...#{range1}, these are the humidity->temp inverse mappings:")
-      IO.inspect(temperature_ranges_for_this_location)
-      Enum.flat_map(temperature_ranges_for_this_location, fn {humidity_start, {temperature_start, range2}} ->
-        IO.puts("humidity_start: " <> Integer.to_string(humidity_start))
-        IO.inspect("ABOUT TO GET INVERSE RANGES FOR {:light, :temperature} AGAINST TEMPERATURE START #{temperature_start} AND RANGE #{range2}")
-
-        light_ranges_for_this_location =
-          get_source_ranges_for_dest_range(temperature_start, range2, almanac.maps[{:light, :temperature}])
-
-          IO.inspect("-----4----location #{location_start}")
-          IO.inspect(light_ranges_for_this_location)
-          Enum.flat_map(light_ranges_for_this_location, fn {temperature_start, {light_start, range3}} ->
-            IO.puts("temperature_start: " <> Integer.to_string(temperature_start))
-            water_ranges_for_this_location =
-              get_source_ranges_for_dest_range(light_start, range3, almanac.maps[{:water, :light}])
-
-
-            IO.inspect("---5-------location #{location_start}")
-            IO.inspect(water_ranges_for_this_location)
-            Enum.flat_map(water_ranges_for_this_location, fn {light_start, {water_start, range4}} ->
-              IO.puts("light_start: " <> Integer.to_string(light_start))
-              fertilizer_ranges_for_this_location =
-                get_source_ranges_for_dest_range(water_start, range4, almanac.maps[{:fertilizer, :water}])
-
-                IO.inspect("-----6-----location #{location_start}")
-                IO.inspect(fertilizer_ranges_for_this_location)
-                Enum.flat_map(fertilizer_ranges_for_this_location, fn {water_start, {fertilizer_start, range5}} ->
-                  IO.puts("water_start: " <> Integer.to_string(water_start))
-                  soil_ranges_for_this_location =
-                    get_source_ranges_for_dest_range(fertilizer_start, range5, almanac.maps[{:soil, :fertilizer}])
-
-                  IO.inspect("-----7-----location #{location_start}")
-                  IO.inspect(soil_ranges_for_this_location)
-                  Enum.flat_map(soil_ranges_for_this_location, fn {fertilizer_start, {soil_start, range6}} ->
-                    IO.puts("fertilizer_start: " <> Integer.to_string(fertilizer_start))
-                    seed_ranges_for_this_location =
-                      get_source_ranges_for_dest_range(soil_start, range6, almanac.maps[{:seed, :soil}])
-                    IO.inspect("-----8----- location #{location_start}")
-                    IO.inspect(seed_ranges_for_this_location)
-                    %{:location_start => soil_start, :range => range6, :seed_ranges_for_this_location => seed_ranges_for_this_location}
-                  end)
-                end)
-            end)
-          end)
-      end)
+    Enum.flat_map(s_from, fn {dest_start, {source_start, count}} ->
+      get_source_ranges_for_dest_range(dest_start, count, s_to)
     end)
-    IO.inspect("==p..=.=")
-    IO.inspect(rr)
+
+    # Let's start by reversing the mapping from location to humidity
+  end
+
+  def reverse_mapping(map) do
+    Enum.map(map, fn {dest_start, {source_start, count}} ->
+      {source_start, {dest_start, count}}
+    end)
+  end
+
+  def lowest_locations_by_seed_value_ranges(almanac) do
+
+    location_to_humidity = reverse_mapping(almanac.maps[{:humidity, :location }])
+    keys = [
+      {:seed, :soil },
+      {:soil, :fertilizer },
+      {:fertilizer, :water},
+      {:water, :light},
+      {:light, :temperature},
+      {:temperature, :humidity},
+    ]
+    |> List.foldr(location_to_humidity, fn key, acc ->
+      IO.inspect("=========================")
+      IO.inspect(acc)
+      IO.inspect(key)
+      IO.inspect(almanac.maps[key])
+      reverse_mapped = reverse_mapping(almanac.maps[key])
+      IO.inspect(reverse_mapped)
+      flatten_mappings(acc, reverse_mapped)
+    end)
+    # rr = Enum.flat_map(sorted_locations, fn {location_start, {humidity_start, range1}} ->
+
+    #   IO.inspect("STARTING inverse map creation. Location #{location_start} .... #{location_start + range1}")
+    #   IO.inspect({location_start, humidity_start, range1})
+
+    #   IO.inspect("ABOUT TO GET INVERSE RANGES FOR {:temperature, :humidity} AGAINST HUMIDITY START #{humidity_start} AND RANGE #{range1}")
+    #   temperature_ranges_for_this_location =
+    #     get_source_ranges_for_dest_range(humidity_start, range1, almanac.maps[{:temperature, :humidity}])
+
+    #   IO.inspect("We believe that for the location range of (#{location_start}...#{range1}, these are the humidity->temp inverse mappings:")
+    #   IO.inspect(temperature_ranges_for_this_location)
+    #   Enum.flat_map(temperature_ranges_for_this_location, fn {humidity_start, {temperature_start, range2}} ->
+    #     IO.puts("humidity_start: " <> Integer.to_string(humidity_start))
+    #     IO.inspect("ABOUT TO GET INVERSE RANGES FOR {:light, :temperature} AGAINST TEMPERATURE START #{temperature_start} AND RANGE #{range2}")
+
+    #     light_ranges_for_this_location =
+    #       get_source_ranges_for_dest_range(temperature_start, range2, almanac.maps[{:light, :temperature}])
+
+    #       IO.inspect("-----4----location #{location_start}")
+    #       IO.inspect(light_ranges_for_this_location)
+    #       Enum.flat_map(light_ranges_for_this_location, fn {temperature_start, {light_start, range3}} ->
+    #         IO.puts("temperature_start: " <> Integer.to_string(temperature_start))
+    #         water_ranges_for_this_location =
+    #           get_source_ranges_for_dest_range(light_start, range3, almanac.maps[{:water, :light}])
+
+
+    #         IO.inspect("---5-------location #{location_start}")
+    #         IO.inspect(water_ranges_for_this_location)
+    #         Enum.flat_map(water_ranges_for_this_location, fn {light_start, {water_start, range4}} ->
+    #           IO.puts("light_start: " <> Integer.to_string(light_start))
+    #           fertilizer_ranges_for_this_location =
+    #             get_source_ranges_for_dest_range(water_start, range4, almanac.maps[{:fertilizer, :water}])
+
+    #             IO.inspect("-----6-----location #{location_start}")
+    #             IO.inspect(fertilizer_ranges_for_this_location)
+    #             Enum.flat_map(fertilizer_ranges_for_this_location, fn {water_start, {fertilizer_start, range5}} ->
+    #               IO.puts("water_start: " <> Integer.to_string(water_start))
+    #               soil_ranges_for_this_location =
+    #                 get_source_ranges_for_dest_range(fertilizer_start, range5, almanac.maps[{:soil, :fertilizer}])
+
+    #               IO.inspect("-----7-----location #{location_start}")
+    #               IO.inspect(soil_ranges_for_this_location)
+    #               Enum.flat_map(soil_ranges_for_this_location, fn {fertilizer_start, {soil_start, range6}} ->
+    #                 IO.puts("fertilizer_start: " <> Integer.to_string(fertilizer_start))
+    #                 seed_ranges_for_this_location =
+    #                   get_source_ranges_for_dest_range(soil_start, range6, almanac.maps[{:seed, :soil}])
+    #                 IO.inspect("-----8----- location #{location_start}")
+    #                 IO.inspect(seed_ranges_for_this_location)
+    #                 %{:location_start => soil_start, :range => range6, :seed_ranges_for_this_location => seed_ranges_for_this_location}
+    #               end)
+    #             end)
+    #         end)
+    #       end)
+    #   end)
+    # end)
+    # IO.inspect("==p..=.=")
+    # IO.inspect(rr)
   end
 
   def runP1 do
