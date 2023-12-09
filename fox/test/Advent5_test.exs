@@ -2,6 +2,8 @@ defmodule Advent5Test do
   use ExUnit.Case
   doctest Advent5
 
+  alias Advent5.MapEntry, as: M
+
   ##### FULL TREE TESTS ########################################################
 
   @tag timeout: 1000
@@ -43,6 +45,57 @@ defmodule Advent5Test do
   test "lowest_num" do
     almanac = Advent5.read_almanac("lib/Puzz5.example.input.txt")
     assert Advent5.get_lowest_loc_num(almanac.maps) == 35
+  end
+
+  ##### LETS DO IT SMARTER #####################################################
+
+  test "Case II" do
+    a = %M{ source_start: 0, dest_start: 100, length: 7 }
+                   b = %M{ source_start: 104, dest_start: 200, length: 5 }
+
+    x =  %M{ source_start: 0, dest_start: 100, length: 4 } # 3 to go
+    y =  %M{ source_start: 4, dest_start: 200, length: 3 } # 0 to go
+    z =  %M{ source_start: 107, dest_start: 203, length: 2 } # Acc, tacked on at the very end
+
+    out = Advent5.mk_entry_overlaps(a, [b])
+    IO.inspect(out)
+
+    [t, u, v] = out
+
+    assert t == x
+    assert u == y
+    assert v == z
+  end
+
+  test "Case IV" do
+    a = %M{ source_start: 95, dest_start: 100, length: 7 }
+    b = %M{ source_start: 90, dest_start: 200, length: 5 }
+
+    x =  %M{ source_start: 90, dest_start: 200, length: 5 } # 3 to go
+    y =  %M{ source_start: 95, dest_start: 205, length: 2 } # 0 to go
+
+    out = Advent5.mk_entry_overlaps(a, [b])
+    IO.inspect(out)
+
+    # [t, u, v] = out
+
+    # assert t == x
+    # assert u == y
+    # assert v == z
+  end
+
+  test "entry_mult A" do
+    almanac = Advent5.read_almanac("lib/Puzz5.example.input.txt")
+    seed_entry   = Enum.at(almanac.maps.seed.entries, 1)
+    soil_entries = Advent5.sorted_entries(almanac, :soil)
+
+    IO.inspect(seed_entry)
+    IO.inspect(soil_entries)
+
+    out = Advent5.mk_entry_overlaps(seed_entry, soil_entries)
+
+    IO.puts("")
+    IO.inspect(out)
   end
 
   ##### COMPONENT TESTS ########################################################

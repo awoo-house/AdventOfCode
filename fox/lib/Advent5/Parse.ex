@@ -1,8 +1,10 @@
 defmodule Advent5.Parse do
   alias Advent5.Token
+  alias Advent5.MapEntry
+
   @type toks() :: list(Token.t())
 
-  @type mapEntry() :: %{ source_start: integer(), dest_start: integer(), length: integer() }
+  @type mapEntry() :: MapEntry.t()
   @type almanacMaps() :: %{ atom() => %{ to_map: atom(), entries: list(mapEntry()) } }
   @type almanac() :: %{ seeds: list(integer()), maps: almanacMaps() }
   @type parseState() :: %{ from_map: atom(), dest_map: atom(), current: almanac() }
@@ -49,7 +51,7 @@ defmodule Advent5.Parse do
 
     if triple? do
       [a, b, c] = three_toks
-      entry = %{
+      entry = %MapEntry{
         :source_start => b.val,
         :dest_start => a.val,
         :length => c.val
