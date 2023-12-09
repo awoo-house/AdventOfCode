@@ -1,64 +1,77 @@
 # I am not finishing this on a plane lol
 
 defmodule AmmyThree do
-  def is_a_number(nil), do: false
-  def is_a_number(char), do: String.match?(char, ~r/\d/)
-  def is_a_symbol(char), do: !is_a_number(char) and char != "."
-
-  def get_neighbors(schematic, indices) do
-    Enum.map(indices, fn {row_index, col_index} ->
-      left_numbers =
-        Enum.take_while(Enum.reverse(Enum.at(Enum.at(schematic, row_index), 0..col_index)), &is_a_number/1)
-        |> Enum.reverse()
-
-      right_numbers =
-        Enum.take_while(Enum.at(Enum.at(schematic, row_index), col_index + 1..length(schematic) - 1), &is_a_number/1)
-
-      {left_numbers, right_numbers}
-    end)
+  # given the contents of a file, turn it into a 2d array of characters
+  def convert_to_array(input) do
+    input
+    |> String.split("\n")
+    |> Enum.map(&String.graphemes/1)
   end
 
+  def are_adjacent({x1, y1}, {x2, y2}) do
+    abs(x1 - x2) <= 1 and abs(y1 - y2) <= 1
+  end
 
-  def inspect_surroundings(schematic) do
+  def find_relevant_numbers(symbols, numbers) do
+    for c1 <- symbols, c2 <- numbers, are_adjacent(c1, c2), do: c2
+  end
+
+  def get_symbol_indices(schematic) do
+    is_a_symbol = fn char ->
+      is_symbol =
+        case char do
+          # the ASCII symbols block, minus `.`
+          <<c::utf8>> when ((c >= 33 and c <= 47) or (c >= 58 and c <= 64)) and c != 46 -> true
+          _ -> false
+        end
+
+      is_symbol
+    end
+
     schematic
     |> Enum.with_index()
     |> Enum.flat_map(fn {row, row_index} ->
       row
       |> Enum.with_index()
-      |> Enum.map(fn {char, col_index} ->
-        if is_a_symbol(char) do
-          indices = [
-            {row_index - 1, col_index - 1}, {row_index - 1, col_index}, {row_index - 1, col_index + 1},
-            {row_index, col_index - 1},                                 {row_index, col_index + 1},
-            {row_index + 1, col_index - 1}, {row_index + 1, col_index}, {row_index + 1, col_index + 1}
-          ]
-
-          number_indices =
-            Enum.filter(indices, fn {r, c} ->
-              row_exists = r >= 0 and r < length(schematic)
-              col_exists = c >= 0 and c < length(Enum.at(schematic, 0))
-
-              row_exists and col_exists and is_a_number(Enum.at(Enum.at(schematic, r), c))
-            end)
-
-            neighbors = get_neighbors(schematic, number_indices)
-
-            %{char: char, indices: number_indices, neighbors: neighbors}
-        else
-          nil
-        end
-      end)
+      |> Enum.filter(fn {char, _col_index} -> is_a_symbol.(char) end)
+      |> Enum.map(fn {_, col_index} -> {row_index, col_index} end)
     end)
-    |> Enum.reject(&is_nil/1)
   end
+
+  def get_number_indices(schematic) do
+    is_a_number = fn char ->
+      is_number =
+        case char do
+          <<c::utf8>> when (c >= 48 and c <= 57) -> true
+          _ -> false
+        end
+
+      is_number
+    end
+
+    # this double-iteration is extremely unfortunate
+    # i could probably grab everything on a single pass and label it as a number or symbol?
+    schematic
+    |> Enum.with_index()
+    |> Enum.flat_map(fn {row, row_index} ->
+      row
+      |> Enum.with_index()
+      |> Enum.filter(fn {char, _col_index} -> is_a_number.(char) end)
+      |> Enum.map(fn {_, col_index} -> {row_index, col_index} end)
+    end)
+  end
+
   def run do
     case File.read("input/day3.in") do
       {:ok, input} ->
-        input
-        |> String.split("\n")
-        |> Enum.map(&String.graphemes/1)
-        |> inspect_surroundings()
-        |> IO.inspect
+        schematic = input |> convert_to_array()
+        symbols = get_symbol_indices(schematic)
+        numbers = get_number_indices(schematic)
+        relevant_numbers = find_relevant_numbers(symbols, numbers)
+        IO.inspect(relevant_numbers)
+
+
+      # |> inspect_surroundings()
 
       {:error, reason} ->
         IO.puts("Error reading file: #{reason}")
