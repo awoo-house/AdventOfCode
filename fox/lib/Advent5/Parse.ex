@@ -2,8 +2,9 @@ defmodule Advent5.Parse do
   alias Advent5.Token
   @type toks() :: list(Token.t())
 
-  @type almanac() :: %{ atom() => list(integer()) }
-  @type parseState() :: %{ writing_to: atom(), current: almanac() }
+  @type mapEntry() :: %{ to_map: atom(), source_start: integer(), dest_start: integer(), length: integer() }
+  @type almanac() :: %{ seeds: list(integer()), maps: %{ atom() => list(mapEntry()) } }
+  @type parseState() :: %{ from_map: atom(), dest_map: atom(), current: almanac() }
 
   @type parseResult() :: parseState()
 
@@ -12,15 +13,18 @@ defmodule Advent5.Parse do
   def parseAlmanac(toks), do: parse(toks).current
 
 
-
   @spec parse(toks(), parseState()) :: parseResult()
-  def parse(tokens, state \\ %{ writing_to: nil, current: %{} })
+  def parse(tokens, state \\ %{ from_map: nil, dest_map: nil, current: %{ seeds: [], maps: %{} } })
   def parse([], state), do: state
   def parse([%Token{type: :seedWord} | toks], state) do
-    parseSeeds(toks, %{state | writing_to: :seeds })
+    parseSeeds(toks, state)
   end
-  def parse([%Token{type: :ident, val: id}, %Token{type: :mapWord} | toks], state) do
-    parseMapEntries(toks, %{state | writing_to: String.to_atom(id)})
+  def parse([%Token{type: :ident, val: from},
+             %Token{type: :toWord},
+             %Token{type: :ident, val: dest},
+             %Token{type: :mapWord} | toks], state) do
+    parseMapEntries(toks,
+      %{state | from_map: String.to_atom(from), dest_map: String.to_atom(dest) })
   end
 
   @spec parseSeeds(toks(), parseState()) :: parseResult()
@@ -32,7 +36,7 @@ defmodule Advent5.Parse do
 
      nums = Enum.map(nums, fn n -> n.val end)
 
-     parse(rest, updateMap(state, nums))
+     parse(rest, %{ state | current: %{ state.current | seeds: nums }})
   end
 
   @spec parseMapEntries(toks(), parseState()) :: parseResult()
@@ -44,7 +48,13 @@ defmodule Advent5.Parse do
 
     if triple? do
       [a, b, c] = three_toks
-      parseMapEntries(rest, updateMap(state, [{a.val, b.val, c.val}]))
+      entry = %{
+        :to_map => state.dest_map,
+        :source_start => b.val,
+        :dest_start => a.val,
+        :length => c.val
+      }
+      parseMapEntries(rest, addEntryToMap(state, entry))
     else
       parse(three_toks ++ rest, state)
     end
@@ -52,11 +62,11 @@ defmodule Advent5.Parse do
 
 
 
-  @spec parse(list(any()), parseState()) :: parseState()
-  def updateMap(state, val) do
-    %{ state | current:
-        Map.update(state.current, state.writing_to, val,
-          fn xs -> xs ++ val end)
-    }
+  @spec addEntryToMap(parseState(), mapEntry()) :: parseState()
+  def addEntryToMap(state, entry) do
+    %{ state | current: %{ state.current |
+        maps: Map.update(state.current.maps, state.from_map, [entry],
+          fn xs -> [entry | xs] end)
+    }}
   end
 end
