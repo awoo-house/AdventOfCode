@@ -41,7 +41,7 @@ defmodule Day10Test do
 
     Day10.parse(input)
     |> Day10.build_graph
-    |> Day10.label_ground
+    # |> Day10.label_ground
     |> Day10.print
   end
 

@@ -1,13 +1,24 @@
 defmodule Day10 do
 
-  def pretty("|"), do: "║"
-  def pretty("-"), do: "═"
-  def pretty("L"), do: "╚"
-  def pretty("J"), do: "╝"
-  def pretty("7"), do: "╗"
-  def pretty("F"), do: "╔"
-  def pretty("."), do: "."
-  def pretty("S"), do: "✪"
+  @updown    "║"
+  @leftright "═"
+  @upright   "╚"
+  @upleft    "╝"
+  @downleft  "╗"
+  @downright "╔"
+  @ground    "."
+  @start     "✪"
+  @outside   "∅"
+  @inside    "◆"
+
+  def pretty("|"), do: @updown
+  def pretty("-"), do: @leftright
+  def pretty("L"), do: @upright
+  def pretty("J"), do: @upleft
+  def pretty("7"), do: @downleft
+  def pretty("F"), do: @downright
+  def pretty("."), do: @ground
+  def pretty("S"), do: @start
 
   def parse(input) do
     String.split(input, "\n", trim: true)
@@ -17,7 +28,7 @@ defmodule Day10 do
       |> String.graphemes()
       |> Enum.with_index()
       |> Enum.map(fn { char, x_index } ->
-        { {x_index, y_index}, { char, -1, pretty(char)} }
+        { {x_index, y_index}, { char, -1, @ground} }
       end)
     end)
     |> Map.new()
@@ -32,7 +43,10 @@ defmodule Day10 do
   end
 
   def build_graph(grid) do
+    # Map.keys(grid)
+    # |> IO.inspect
     {{x, y}, _start} = Enum.find(grid, fn {{_x, _y}, {char, _, _p}} -> char == "S" end)
+    ng = Map.put(grid, {x, y}, {"S", 1, @start})
     up = {x, y-1}
     down = {x, y+1}
     left = {x-1, y}
@@ -56,11 +70,13 @@ defmodule Day10 do
     end)
     |> List.first
 
-    traverse(grid, first_char, first_idx, first_dir, dist)
+    # Map.keys(grid)
+    # |> IO.inspect
 
+    traverse(ng, first_char, first_idx, first_dir, dist)
   end
 
-  def next_index({x, y}, "|", :from_south), do: {{x, y-1}, :from_south}
+  def next_index({x, y}, "|", :from_south), do: {{x, y-1}, :from_south, }
   def next_index({x, y}, "|", :from_north), do: {{x, y+1}, :from_north}
   def next_index({x, y}, "-", :from_west), do: {{x+1, y}, :from_west}
   def next_index({x, y}, "-", :from_east), do: {{x-1, y}, :from_east}
@@ -73,7 +89,6 @@ defmodule Day10 do
   def next_index({x, y}, "F", :from_south), do: {{x+1, y}, :from_west}
   def next_index({x, y}, "F", :from_east), do: {{x, y+1}, :from_north}
 
-
   def traverse(grid, current_char, {x, y}, direction, distance_from_s) do
     if current_char == "S" do
       grid
@@ -85,25 +100,31 @@ defmodule Day10 do
     end
   end
 
-  def label_ground(grid) do
 
-    def_outside = Enum.filter(grid, fn {{x, y}, {c, _d, _p}} ->
-      is_left = x == 0
-      is_top = y == 0
-      is_right = not Map.has_key?(grid, {x+1, y})
-      is_bottom = not Map.has_key?(grid, {x, y+1})
-      c == "." and (is_bottom or is_left or is_right or is_top)
 
-    end)
-    Enum.reduce(def_outside, grid, fn {{x, y}, {c, d, _p}}, acc ->
-      Map.put(acc, {x, y}, {c, d, "∅"})
-    end)
+  # def label_ground(grid) do
 
-    # label any ground touching the def outside with outside
-    Enum.reduce(def_outside, grid, fn {{x, y}, {c, d, _p}}, acc ->
-      Map.put(acc, {x, y}, {c, d, "∅"})
-    end)
-  end
+  #   def_outside = Enum.filter(grid, fn {{x, y}, {_c, d, _p}} ->
+  #     is_left = x == 0
+  #     is_top = y == 0
+  #     is_right = not Map.has_key?(grid, {x+1, y})
+  #     is_bottom = not Map.has_key?(grid, {x, y+1})
+  #     d <= 0 and (is_bottom or is_left or is_right or is_top)
+
+  #   end)
+  #   Enum.reduce(def_outside, grid, fn {{x, y}, {c, d, _p}}, acc ->
+  #     # IO.inspect({x, y})
+  #     Map.put(acc, {x, y}, {c, d, @outside})
+  #   end)
+
+  #   # # label any ground touching the def outside with outside
+
+
+
+  #   # Enum.reduce(def_outside, grid, fn {{x, y}, {_c, _d, _p}}, acc ->
+
+  #   # end)
+  # end
 
   def print(grid) do
     xs = Enum.map(grid, fn {{x, _y}, {_c, _d, _p}} ->
@@ -117,7 +138,7 @@ defmodule Day10 do
     Enum.each((0..max_y), fn y ->
       line = Enum.reduce((0..max_x), "", fn x, acc ->
         {_char, _distance, p} = Map.get(grid, {x, y})
-        acc <> " " <> p
+        acc <> p
       end)
       IO.puts(line)
     end)
@@ -127,8 +148,8 @@ defmodule Day10 do
     case File.read("./lib/inputs/day10.txt") do
       {:ok, input} -> parse(input)
         |> build_graph
-        |> get_max_distance
-        |> IO.inspect
+        # |> label_ground
+        |> print
       {:error, reason} -> IO.write(reason)
     end
   end
