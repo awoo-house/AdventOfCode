@@ -7,6 +7,8 @@
 \usepackage[letterpaper, margin=1in]{geometry}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{emoji}
+\usepackage{tikz}
 
 \usepackage{minted}
 
@@ -21,6 +23,8 @@
 % counter print "Day 1." instead of just "1."
 \RenewDocumentCommand\thesection{}{Day \arabic{section}:}
 
+\usetikzlibrary {datavisualization.formats.functions}
+
 %%%%% TITLE AND AUTHOR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \title{Notes on Advent of Code 2023}
@@ -31,15 +35,69 @@
 \begin{document}
 \maketitle
 
-\section{Trebuchet?!}
-Let's write about the trebuchet-day!
+\setcounter{section}{5}
+\section{Wait For It}
 
-Here's a code snippet I want to talk about:
+I solved this one with \emoji{sparkles} m a t h e m a t i c s \emoji{sparkles}. I noticed that, if we ignore that the timesteps are discrete integers, this seems a lot like a physics problem. And since the problem is kind enough to add 1 acceleration-unit per input-time-unit, we can write out a formula for the distance the boat travels dependent on: the total time of the race, and how much of that time was spent holding down the charge button:
+
+$$
+  \textsf{dist}(c, t) = \int_0^{(t-c)} c dt = c(t-c) = -c^2 + tc,
+$$
+
+where $t$ is the total race time, and $c$ is the charge time. For the first
+example, this forms a parabola that looks like:
+
+\begin{tikzpicture}[scale=.7]
+\datavisualization [school book axes,
+                    visualize as smooth line/.list={fn, record},
+                    x axis={length=3in, ticks=few},
+                    y axis={length=3in, ticks=few, min value=-10, max value=20},
+                    style sheet=strong colors,
+                    data/format=function ]
+data [set=fn] {
+  var x : interval [-1:7.5];
+  func y = \value x*(7 - \value x);
+}
+data [set=record] {
+  var x : interval [-5:10];
+  func y = 9;
+};
+\end{tikzpicture}
+
+The problem tells us that we need to do better than the record time of 9ms; that is, in chart, we must be (strictly) above the line. So for some record time $r$, this works out to trying to solve
+
+$$
+  \textsf{dist}(c, t) > r.
+$$
+
+But for now, let's just find the points at which the line $y = r$ intersects $\textsf{dist}(c, t)$: $-c^2 + tc = r$, or rather
+
+$$
+  -c^2 + tc - r = 0.
+$$
+
+We can use ye olde Pythagorean Theorem to help us, and write:
+
+$$
+  d = \frac{t \pm \sqrt{t^2 - 4r}}{2}.
+$$
+
+With this, we have $d$ being a pair of numbers that indicate the range of time where we could hold down the button, and beat \emph{or tie} the current record. But for now, we'll switch over to the implementation.
 
 \begin{minted}{elixir}
-@spec add_one(integer()) :: integer()
-def add_one(a), do: a + 1
+@spec find_it(integer(), integer()) :: Range.t()
+def find_it(race_time, record) do
+  nonsense = :math.sqrt(race_time ** 2.0 - 4.0*record) / 2.0
+
+  top = ((race_time/2.0) + nonsense - 0.00001)
+  bot = ((race_time/2.0) - nonsense + 0.00001)
+
+  (trunc(bot)+1..trunc(top))
+end
 \end{minted}
-It's very elixir.
+
+This is the whole thing! It breaks out $d$ into a variable called ``nonsense'' as well as the upper and lower bounds. Now, since we need to always exceed $r$, and since the problem only cares about discrete values between the two points, we can actually just cheat a little bit, and nudge the left-most value a little bit to the right, and the rightmost value a little bit to the left, and rely on the truncation function (converts a float to an int by just lopping off the decimal part) to get us the correct bounds.
+
+And it does!
 
 \end{document}
