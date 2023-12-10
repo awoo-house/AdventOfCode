@@ -17,32 +17,46 @@ defmodule Day8 do
     {String.trim(ins), tree}
   end
 
+  def lcm(a, b), do: trunc((a * b) / Integer.gcd(a, b))
+
   def run_until_zzz({instructions, map}) do
     init_nodes = Enum.filter(Map.keys(map[:lefts]), fn node ->
       String.ends_with?(node, "A")
     end)
-
-    init = %{:current_nodes => init_nodes, :steps => 0}
+    |> Enum.map(fn n ->
+      {n, 0, 0, 0}
+    end)
 
     inf = Stream.cycle(String.graphemes(instructions))
-    answer = Enum.reduce_while(inf, init, fn instruction, acc ->
-      new_nodes = Enum.map(acc[:current_nodes], fn cur_node ->
-        go(map, cur_node, instruction)
+    answer = Enum.reduce_while(inf, init_nodes, fn instruction, acc ->
+      new_nodes = Enum.map(acc, fn {cur_node, steps, reset_step, resets} ->
+        next = go(map, cur_node, instruction)
+        ns = steps + 1
+        if String.ends_with?(next, "Z") do
+          if resets > 0 and ns != reset_step do
+            IO.inspect("!!!!! This is different than last time!")
+            IO.inspect({cur_node, ns, reset_step, resets})
+          end
+          { next, 0, ns, resets + 1}
+        else
+          { next, ns, reset_step, resets}
+        end
       end)
-      steps = acc[:steps] + 1
-      next_acc =  %{:current_nodes => new_nodes, :steps => steps}
-      if rem(steps, 1000000) == 0 do
-        IO.inspect(steps)
-      end
-      if Enum.all?(new_nodes, fn newest_nodes ->
-        String.ends_with?(newest_nodes, "Z")
+
+      if Enum.all?(new_nodes, fn {_cur_node, _steps, _reset_step, resets}  ->
+        resets > 8
       end) do
-        {:halt, next_acc}
+        {:halt, new_nodes}
       else
-        {:cont, next_acc}
+        {:cont, new_nodes}
       end
     end)
-    answer[:steps]
+    IO.inspect(answer)
+
+    Enum.reduce(answer, 1, fn {_, _a, d, _r}, acc ->
+      lcm(acc, d)
+    end)
+    |> IO.inspect
 
   end
 
