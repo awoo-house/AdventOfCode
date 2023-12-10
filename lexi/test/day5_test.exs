@@ -38,6 +38,10 @@ defmodule Day5Test do
       56 93 4\n
     """
 
+    # 95 temp -> 95 humid -> 58 location (no)
+    # 70 temp -> 70 humid -> 74 location (no)
+    # 50 temp -> 51 humid -> 51 location (yes)
+
   @tag timeout: 1000
   test "parse" do
 
@@ -115,6 +119,75 @@ defmodule Day5Test do
   end
 
 
+
+  test "reverse_mapping" do
+
+    res = Almanac.parse(%{}, """
+    seeds: 10 2 30 15\n
+    \n
+    seed-to-soil map:\n
+    1000 1 4\n
+    \n
+    soil-to-fertilizer map:\n
+    0 15 37\n
+    37 52 2\n
+    39 0 15\n
+    \n
+    fertilizer-to-water map:\n
+    49 53 8\n
+    0 11 42\n
+    42 0 7\n
+    57 7 4\n
+    \n
+    water-to-light map:\n
+    88 18 7\n
+    18 25 70\n
+    \n
+    light-to-temperature map:\n
+    45 77 23\n
+    81 45 19\n
+    68 64 13\n
+    \n
+    temperature-to-humidity map:\n
+    0 69 1\n
+    1 0 69\n
+    \n
+    humidity-to-location map:\n
+    60 56 37\n
+    56 93 4\n
+    """)
+    # location 0 maps to 30 --- location 10 maps to 40... location 60 maps to humidity 90...
+    e = Day5.reverse_mapping(res.maps[{:humidity, :location}])
+    IO.inspect(e)
+
+    f = Day5.reverse_mapping(res.maps[{:temperature, :humidity}])
+    location_to_temperature = Day5.flatten_mappings(e, f)
+    IO.inspect(location_to_temperature)
+    g = Day5.reverse_mapping(res.maps[{:light, :temperature}])
+    location_to_light = Day5.flatten_mappings(location_to_temperature, g)
+    IO.inspect(location_to_light)
+    y = Day5.reverse_mapping(res.maps[{:water, :light}])
+    location_to_water = Day5.flatten_mappings(location_to_light, y)
+    IO.inspect(location_to_water)
+  end
+
+
+  test "lowest_locations_by_seed_value_ranges_3" do
+
+    # IO.puts("For location to humidity, we should get the ranges...")
+    # IO.puts(" location 70 -> humidity 0 -> temp -> 0")
+    # IO.puts(" location 79 -> humidity 9 -> temp -> 9")
+    # IO.puts(" location 80 -> humidity 10 -> temp -> 10")
+    # IO.puts(" location 10 -> humidity 80 -> temp -> 90")
+    # IO.puts(" location 21 -> humidity 91 -> temp -> 81")
+    res = Almanac.parse(%{}, @input)
+    # location 0 maps to 30 --- location 10 maps to 40... location 60 maps to humidity 90...
+    e = Day5.lowest_locations_by_seed_value_ranges(res)
+    g = Day5.find_lowest_seed_in_locations(e, res)
+    IO.inspect(g)
+  end
+
+
   test "get_source_ranges_for_dest_ranges" do
     # has min of 2, max of 96. We need maps for everything in this range.
     res = Day5.get_source_ranges_for_dest_range(10, 5, [{13,{88, 8}},{15, {10, 3}}, {2, {13, 1}}, {6, {23, 4}}])
@@ -130,11 +203,11 @@ defmodule Day5Test do
   test "hydrated_mapping" do
     io = %{
       [{10, {100, 10}}, {100, {10, 10}}] =>
-        [{1, {1, 9}}, {10, {100, 10}}, {20, {20, 80}}, {100, {10, 10}}]
+        [{0, {0, 10}}, {10, {100, 10}}, {20, {20, 80}}, {100, {10, 10}}]
     }
 
     Enum.each(io, fn {map, exr} ->
-      act = Almanac.hydrated_mapping(map)
+      act = Almanac.hydrated_mapping(map, 100)
       IO.inspect(act)
       assert Enum.sort(act) == Enum.sort(exr)
     end)
