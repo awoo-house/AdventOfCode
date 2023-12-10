@@ -48,7 +48,7 @@ defmodule Almanac do
     int = Map.get(res, :new_mapping)
     highest_so_far = Map.get(res, :last_number_mapped)
     if highest_so_far < highest_number_to_map do
-      diff = highest_number_to_map - highest_so_far
+      _diff = highest_number_to_map - highest_so_far
       Map.put(res, :new_mapping, int ++ [{ highest_so_far + 1, {highest_so_far + 1, highest_number_to_map}}])
       |> Map.get(:new_mapping)
     else

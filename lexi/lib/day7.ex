@@ -65,7 +65,7 @@ defmodule Day7 do
     Enum.map(hands, fn {hand, bid} ->
       { get_sorting_value(hand), {hand, bid} }
     end)
-    |> Enum.sort_by(fn {s, h} -> s end, :asc)
+    |> Enum.sort_by(fn {s, _h} -> s end, :asc)
   end
 
   def parse(input) do
@@ -83,7 +83,7 @@ defmodule Day7 do
         |> sort_hands
         |> Enum.with_index(1)
         |> Enum.reduce(0, fn x, acc ->
-          {{_, {h, bid}}, idx} = x
+          {{_, {_h, bid}}, idx} = x
           acc + (bid * idx)
         end)
         |> IO.inspect
