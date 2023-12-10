@@ -30,11 +30,16 @@ defmodule Day8Test do
   @tag timeout: 1000
   test "run_until_zzz 2" do
     input = """
-      LLR
+    LR
 
-      AAA = (BBB, BBB)
-      BBB = (AAA, ZZZ)
-      ZZZ = (ZZZ, ZZZ)
+    11A = (11B, XXX)
+    11B = (XXX, 11Z)
+    11Z = (11B, XXX)
+    22A = (22B, XXX)
+    22B = (22C, 22C)
+    22C = (22Z, 22Z)
+    22Z = (22B, 22B)
+    XXX = (XXX, XXX)
     """
     {instructions, tree} = Day8.parse(input)
     IO.inspect(instructions)

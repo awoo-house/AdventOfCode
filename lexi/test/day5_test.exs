@@ -38,6 +38,10 @@ defmodule Day5Test do
       56 93 4\n
     """
 
+    # 95 temp -> 95 humid -> 58 location (no)
+    # 70 temp -> 70 humid -> 74 location (no)
+    # 50 temp -> 51 humid -> 51 location (yes)
+
   @tag timeout: 1000
   test "parse" do
 
@@ -179,7 +183,8 @@ defmodule Day5Test do
     res = Almanac.parse(%{}, @input)
     # location 0 maps to 30 --- location 10 maps to 40... location 60 maps to humidity 90...
     e = Day5.lowest_locations_by_seed_value_ranges(res)
-    IO.inspect(e)
+    g = Day5.find_lowest_seed_in_locations(e, res)
+    IO.inspect(g)
   end
 
 

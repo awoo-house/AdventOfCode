@@ -32,7 +32,10 @@ defmodule Almanac do
 
       always_add = {dest_start, {source_start, count}}
 
+      # IO.inspect("Checking if need to add extraa mapping while hydrating. lm: #{lm}, source_start: #{source_start}")
       to_add = if lm + 1 != source_start do
+        # IO.inspect("Need to add an additional mapping while hydrating: ")
+        # IO.inspect({lm + 1, {lm + 1, source_start - lm - 1}})
         [{lm + 1, {lm + 1, source_start - lm - 1}}, always_add]
       else
         [always_add]
@@ -131,11 +134,11 @@ defmodule Almanac do
           seeds: res[:seeds],
           maps: @keys
           |> Enum.map(fn x ->
-            mm = if x == {:humidity, :location} do
-              List.flatten(res[:maps][x])
-            else
-              hydrated_mapping(List.flatten(res[:maps][x]), biggest_num * 2)
-            end
+            # mm = if x == {:humidity, :location} do
+              # hydrated_mapping(List.flatten(res[:maps][x]), )
+            # else
+            mm = hydrated_mapping(List.flatten(res[:maps][x]), biggest_num * 2)
+            # end
             {x, mm }
           end)
           |> Map.new
@@ -183,14 +186,14 @@ defmodule Day5 do
   # Source Range Destination starts higher than the destination can ever get to
   def get_dest_mappings_for_source_range(dest_start, count, {t_dest_start, {_t_source_start, _t_len}})
     when dest_start + count <= t_dest_start do
-      IO.inspect("for the range (dest_start=#{dest_start}) and t_dest_start=#{t_dest_start} and dest_count=#{count}, we think that this source's range is ALWAYS higher than the destination range")
+      # IO.inspect("for the range (dest_start=#{dest_start}) and t_dest_start=#{t_dest_start} and dest_count=#{count}, we think that this source's range is ALWAYS higher than the destination range")
     nil
   end
 
   # Destination starts higher than Source Range Destination ever gets to.
   def get_dest_mappings_for_source_range(dest_start, _count, {t_dest_start, {_t_source_start, t_len}})
     when t_dest_start + t_len <= dest_start do
-      IO.inspect("for the range (dest_start=#{dest_start}) and t_dest_start=#{t_dest_start} and t_len=#{t_len}, we think that this source's range is ALWAYS lower than the destination range")
+      # IO.inspect("for the range (dest_start=#{dest_start}) and t_dest_start=#{t_dest_start} and t_len=#{t_len}, we think that this source's range is ALWAYS lower than the destination range")
     nil
   end
 
@@ -199,8 +202,8 @@ defmodule Day5 do
     when dest_start >= t_dest_start
       and (dest_start + count) < (t_dest_start + t_len) do
     diff = t_source_start + (dest_start - t_dest_start)
-    IO.inspect("for the range (dest_start=#{dest_start}) and count=#{count} and t_dest_start=#{t_dest_start} and t_source_start=#{t_source_start} and t_len=#{t_len},
-      we think that this destination range is ALWAYS within the source range. Thus, we return the new range: {#{dest_start}, {#{diff}, #{count}}}")
+    # IO.inspect("for the range (dest_start=#{dest_start}) and count=#{count} and t_dest_start=#{t_dest_start} and t_source_start=#{t_source_start} and t_len=#{t_len},
+    #   we think that this destination range is ALWAYS within the source range. Thus, we return the new range: {#{dest_start}, {#{diff}, #{count}}}")
 
     {dest_start, {diff, count}}
   end
@@ -209,8 +212,8 @@ defmodule Day5 do
   def get_dest_mappings_for_source_range(dest_start, count, {t_dest_start, {t_source_start, t_len}})
     when t_dest_start >= dest_start
       and (dest_start + count) >= (t_dest_start + t_len) do
-    IO.inspect("for the range (dest_start=#{dest_start}) and count=#{count} and t_dest_start=#{t_dest_start} and t_source_start=#{t_source_start} and t_len=#{t_len},
-    we think that this destination range FULLY SURROUNDS the source range. Thus, we return the new range: {#{t_dest_start}, {#{t_source_start}, #{t_len}}}")
+    # IO.inspect("for the range (dest_start=#{dest_start}) and count=#{count} and t_dest_start=#{t_dest_start} and t_source_start=#{t_source_start} and t_len=#{t_len},
+    # we think that this destination range FULLY SURROUNDS the source range. Thus, we return the new range: {#{t_dest_start}, {#{t_source_start}, #{t_len}}}")
 
     {t_dest_start, {t_source_start, t_len}}
   end
@@ -220,8 +223,8 @@ defmodule Day5 do
     when dest_start < t_dest_start
       and (dest_start + count) < (t_dest_start + t_len) do
     diff = count - (t_dest_start - dest_start)
-    IO.inspect("for the range (dest_start=#{dest_start}) and count=#{count} and t_dest_start=#{t_dest_start} and t_source_start=#{t_source_start} and t_len=#{t_len},
-    we think that this destination range INTERSECTS the source range at the TOP END. Thus, we return the new range: {#{t_dest_start}, {#{t_source_start}, #{diff}}}")
+    # IO.inspect("for the range (dest_start=#{dest_start}) and count=#{count} and t_dest_start=#{t_dest_start} and t_source_start=#{t_source_start} and t_len=#{t_len},
+    # we think that this destination range INTERSECTS the source range at the TOP END. Thus, we return the new range: {#{t_dest_start}, {#{t_source_start}, #{diff}}}")
 
     {t_dest_start, {t_source_start, diff}}
   end
@@ -232,16 +235,16 @@ defmodule Day5 do
       and (dest_start + count) >= (t_dest_start + t_len) do
     count_diff = t_len - (dest_start - t_dest_start)
     source_start_diff = t_source_start + (dest_start - t_dest_start)
-    IO.inspect("for the range (dest_start=#{dest_start}) and count=#{count} and t_dest_start=#{t_dest_start} and t_source_start=#{t_source_start} and t_len=#{t_len},
-    we think that this destination range INTERSECTSS the source range at the BOTTOM END. Thus, we return the new range: {#{dest_start}, {#{source_start_diff}, #{count_diff}}}")
+    # IO.inspect("for the range (dest_start=#{dest_start}) and count=#{count} and t_dest_start=#{t_dest_start} and t_source_start=#{t_source_start} and t_len=#{t_len},
+    # we think that this destination range INTERSECTSS the source range at the BOTTOM END. Thus, we return the new range: {#{dest_start}, {#{source_start_diff}, #{count_diff}}}")
 
     {dest_start, {source_start_diff, count_diff}}
   end
 
   # We're going to build the location -> seed ranges
   def get_source_ranges_for_dest_range(dest_start, count, all_source_ranges)  do
-    IO.inspect("000000000000000000")
-    IO.inspect(all_source_ranges)
+    # IO.inspect("000000000000000000")
+    # IO.inspect(all_source_ranges)
     Enum.map(all_source_ranges, fn x ->
       get_dest_mappings_for_source_range(dest_start, count, x)
     end)
@@ -253,7 +256,7 @@ defmodule Day5 do
     Enum.flat_map(source_and_dest_ranges, fn {dest_start, count, all_source_ranges} ->
       get_source_ranges_for_dest_range(dest_start, count, all_source_ranges)
     end)
-    |> IO.inspect
+    # |> IO.inspect
   end
 
   # Location 0 is
@@ -267,10 +270,16 @@ defmodule Day5 do
     s_to = Enum.sort(to_map)
 
     Enum.flat_map(s_from, fn {dest_start, {source_start, count}} ->
-      get_source_ranges_for_dest_range(dest_start, count, s_to)
+      # IO.inspect("Mapping from the current map's dest_start #{dest_start}, source_start #{source_start}, count #{count}")
+      res = get_source_ranges_for_dest_range(source_start, count, s_to)
+      |> Enum.map(fn {new_dest_start, {new_source_start, new_count}} ->
+        diff = dest_start - source_start
+        {new_dest_start + diff, {new_source_start, new_count}}
+      end)
+      # IO.inspect(res)
+      # IO.inspect("ssssssssssssssssssssssssss")
+      res
     end)
-
-    # Let's start by reversing the mapping from location to humidity
   end
 
   def reverse_mapping(map) do
@@ -281,8 +290,10 @@ defmodule Day5 do
 
   def lowest_locations_by_seed_value_ranges(almanac) do
 
-    location_to_humidity = reverse_mapping(almanac.maps[{:humidity, :location }])
-    keys = [
+    # IO.inspect("=========================")
+    location_to_humidity = almanac.maps[{:humidity, :location }]
+    # IO.inspect(location_to_humidity)
+    [
       {:seed, :soil },
       {:soil, :fertilizer },
       {:fertilizer, :water},
@@ -291,71 +302,44 @@ defmodule Day5 do
       {:temperature, :humidity},
     ]
     |> List.foldr(location_to_humidity, fn key, acc ->
-      IO.inspect("=========================")
-      IO.inspect(acc)
-      IO.inspect(key)
-      IO.inspect(almanac.maps[key])
-      reverse_mapped = reverse_mapping(almanac.maps[key])
-      IO.inspect(reverse_mapped)
-      flatten_mappings(acc, reverse_mapped)
+      # IO.inspect("=========================")
+      # IO.inspect(acc)
+      # IO.inspect(key)
+      # IO.inspect(almanac.maps[key])
+      # reverse_mapped = reverse_mapping(almanac.maps[key])
+      # IO.inspect(reverse_mapped)
+      # IO.inspect("Now adding the map of ...")
+      # IO.inspect(key)
+      flatten_mappings(acc, almanac.maps[key])
     end)
-    # rr = Enum.flat_map(sorted_locations, fn {location_start, {humidity_start, range1}} ->
+  end
 
-    #   IO.inspect("STARTING inverse map creation. Location #{location_start} .... #{location_start + range1}")
-    #   IO.inspect({location_start, humidity_start, range1})
+  def find_lowest_seed_in_locations(loc_map, almanac) do
+    # IO.inspect(loc_map)
+    seed_ranges = Enum.chunk_every(almanac.seeds, 2, 2)
+    # |> Enum.sort
+    |> Enum.map(fn [s, c] -> {s, c} end)
 
-    #   IO.inspect("ABOUT TO GET INVERSE RANGES FOR {:temperature, :humidity} AGAINST HUMIDITY START #{humidity_start} AND RANGE #{range1}")
-    #   temperature_ranges_for_this_location =
-    #     get_source_ranges_for_dest_range(humidity_start, range1, almanac.maps[{:temperature, :humidity}])
+    IO.inspect(seed_ranges)
 
-    #   IO.inspect("We believe that for the location range of (#{location_start}...#{range1}, these are the humidity->temp inverse mappings:")
-    #   IO.inspect(temperature_ranges_for_this_location)
-    #   Enum.flat_map(temperature_ranges_for_this_location, fn {humidity_start, {temperature_start, range2}} ->
-    #     IO.puts("humidity_start: " <> Integer.to_string(humidity_start))
-    #     IO.inspect("ABOUT TO GET INVERSE RANGES FOR {:light, :temperature} AGAINST TEMPERATURE START #{temperature_start} AND RANGE #{range2}")
+    Enum.find(loc_map, fn {location, {first_seed_for_location, seed_count}} ->
+      last_seed_for_location = first_seed_for_location + seed_count - 1
+      IO.inspect("checking seed range #{first_seed_for_location} -> #{last_seed_for_location} for location #{location}")
 
-    #     light_ranges_for_this_location =
-    #       get_source_ranges_for_dest_range(temperature_start, range2, almanac.maps[{:light, :temperature}])
+      Enum.find(seed_ranges, fn {range_start, cnt} ->
+        this_range_end = range_start + cnt
 
-    #       IO.inspect("-----4----location #{location_start}")
-    #       IO.inspect(light_ranges_for_this_location)
-    #       Enum.flat_map(light_ranges_for_this_location, fn {temperature_start, {light_start, range3}} ->
-    #         IO.puts("temperature_start: " <> Integer.to_string(temperature_start))
-    #         water_ranges_for_this_location =
-    #           get_source_ranges_for_dest_range(light_start, range3, almanac.maps[{:water, :light}])
+        IO.inspect("checking seeds... GIVEN seed range #{range_start} -> #{this_range_end}")
+        # IO.inspect("#{last_seed_for_location} < #{range_start} ? and also,  #{this_range_end} > #{first_seed_for_location}? and also #{last_seed_for_location} <= #{range_start}")
 
+        this_seed_range_too_low = this_range_end <= first_seed_for_location
+        this_seed_range_too_high = range_start > last_seed_for_location
 
-    #         IO.inspect("---5-------location #{location_start}")
-    #         IO.inspect(water_ranges_for_this_location)
-    #         Enum.flat_map(water_ranges_for_this_location, fn {light_start, {water_start, range4}} ->
-    #           IO.puts("light_start: " <> Integer.to_string(light_start))
-    #           fertilizer_ranges_for_this_location =
-    #             get_source_ranges_for_dest_range(water_start, range4, almanac.maps[{:fertilizer, :water}])
+        not this_seed_range_too_high and not this_seed_range_too_low
 
-    #             IO.inspect("-----6-----location #{location_start}")
-    #             IO.inspect(fertilizer_ranges_for_this_location)
-    #             Enum.flat_map(fertilizer_ranges_for_this_location, fn {water_start, {fertilizer_start, range5}} ->
-    #               IO.puts("water_start: " <> Integer.to_string(water_start))
-    #               soil_ranges_for_this_location =
-    #                 get_source_ranges_for_dest_range(fertilizer_start, range5, almanac.maps[{:soil, :fertilizer}])
+      end)
+    end)
 
-    #               IO.inspect("-----7-----location #{location_start}")
-    #               IO.inspect(soil_ranges_for_this_location)
-    #               Enum.flat_map(soil_ranges_for_this_location, fn {fertilizer_start, {soil_start, range6}} ->
-    #                 IO.puts("fertilizer_start: " <> Integer.to_string(fertilizer_start))
-    #                 seed_ranges_for_this_location =
-    #                   get_source_ranges_for_dest_range(soil_start, range6, almanac.maps[{:seed, :soil}])
-    #                 IO.inspect("-----8----- location #{location_start}")
-    #                 IO.inspect(seed_ranges_for_this_location)
-    #                 %{:location_start => soil_start, :range => range6, :seed_ranges_for_this_location => seed_ranges_for_this_location}
-    #               end)
-    #             end)
-    #         end)
-    #       end)
-    #   end)
-    # end)
-    # IO.inspect("==p..=.=")
-    # IO.inspect(rr)
   end
 
   def runP1 do
@@ -371,11 +355,11 @@ defmodule Day5 do
 
   def runP2 do
     case File.read("./lib/inputs/day5.txt") do
-      {:ok, input} -> Almanac.parse(%{}, input)
-      |> lowest_locations_by_seed_value_ranges
-      |> Enum.each(fn ar ->
-        IO.inspect(ar)
-      end)
+      {:ok, input} ->
+        almanac = Almanac.parse(%{}, input)
+        lowest_locations_by_seed_value_ranges(almanac)
+        |> find_lowest_seed_in_locations(almanac)
+        |> IO.inspect
 
       {:error, reason} -> IO.write(reason)
     end

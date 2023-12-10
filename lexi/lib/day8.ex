@@ -18,16 +18,28 @@ defmodule Day8 do
   end
 
   def run_until_zzz({instructions, map}) do
-    init = %{:current_node => "AAA", :steps => 0}
+    init_nodes = Enum.filter(Map.keys(map[:lefts]), fn node ->
+      String.ends_with?(node, "A")
+    end)
+
+    init = %{:current_nodes => init_nodes, :steps => 0}
 
     inf = Stream.cycle(String.graphemes(instructions))
     answer = Enum.reduce_while(inf, init, fn instruction, acc ->
-      next_node = go(map, acc[:current_node], instruction)
+      new_nodes = Enum.map(acc[:current_nodes], fn cur_node ->
+        go(map, cur_node, instruction)
+      end)
       steps = acc[:steps] + 1
-      next_acc =  %{:current_node => next_node, :steps => steps}
-      case next_node do
-        "ZZZ" -> {:halt, next_acc}
-        _ -> {:cont, next_acc}
+      next_acc =  %{:current_nodes => new_nodes, :steps => steps}
+      if rem(steps, 1000000) == 0 do
+        IO.inspect(steps)
+      end
+      if Enum.all?(new_nodes, fn newest_nodes ->
+        String.ends_with?(newest_nodes, "Z")
+      end) do
+        {:halt, next_acc}
+      else
+        {:cont, next_acc}
       end
     end)
     answer[:steps]
