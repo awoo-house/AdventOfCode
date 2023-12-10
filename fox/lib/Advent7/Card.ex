@@ -7,7 +7,7 @@ defmodule Advent7.Card do
   def new(?A), do: %Advent7.Card{ value: 14 }
   def new(?K), do: %Advent7.Card{ value: 13 }
   def new(?Q), do: %Advent7.Card{ value: 12 }
-  def new(?J), do: %Advent7.Card{ value: 11 }
+  def new(?J), do: %Advent7.Card{ value: 0 }
   def new(?T), do: %Advent7.Card{ value: 10 }
   def new(c),  do: %Advent7.Card{ value: c - ?0 }
 
