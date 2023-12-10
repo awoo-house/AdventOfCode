@@ -29,62 +29,31 @@ defmodule Advent5 do
 
 
   @doc """
-    THIS EXPECTS THE MAP ENTRIES (bs) TO BE SORTED BY SOURCE ID!
+    THIS EXPECTS THE MAP ENTRIES TO BE SORTED on the same dimension.
   """
-  @spec mk_entry_overlaps(P.mapEntry(), list(P.mapEntry())) :: list(P.mapEntry())
-  def mk_entry_overlaps(a, []), do: [a]
-  def mk_entry_overlaps(a, bs) when a.length <= 0, do: bs
-  #   1) -------
-  #             -----
-  def mk_entry_overlaps(a, [b | bs]) when a.dest_start + a.length < b.source_start do
-    [b | mk_entry_overlaps(a, bs)]
+  @spec mk_entry_overlaps(P.mapEntry(), P.mapEntry()) :: list(P.mapEntry())
+  def mk_entry_overlaps(a, b) when (a.dest_start + a.length) < b.source_start do
+    [a, b]
   end
-  #   2) -------
-  #         -----
-  def mk_entry_overlaps(a, [b | bs]) when a.dest_start < b.source_start and (a.dest_start + a.length) >= b.source_start do
-    # Gets transformed to:
-    #   2) ---|----|
-    #         |----|-
-
-    new_start_len = b.source_start - a.dest_start
-    mid_len = min(a.length - new_start_len, b.length)
-
-    start = %MapEntry{ source_start: a.source_start, dest_start: a.dest_start, length: new_start_len }
-    mid   = %MapEntry{ source_start: a.source_start + new_start_len, dest_start: b.dest_start, length: mid_len }
-    acc   = %MapEntry{ source_start: b.source_start + mid_len, dest_start: b.dest_start + mid_len, length: b.length - mid_len }
-
-    [start, mid | mk_entry_overlaps(acc, bs)]
+  def mk_entry_overlaps(a, b) when a.dest_start > (b.source_start + b.length) do
+    [b, a]
   end
-  #   4)   -------
-  #      -----
-  def mk_entry_overlaps(a, [b | bs]) when b.source_start <= a.dest_start do
-    # Gets transformed to:
-    #   4)   |----|---
-    #      -|----|
-    new_start_len = a.dest_start - b.source_start
-    new_mid_len   = b.length - new_start_len
+  def mk_entry_overlaps(a, b) when a.dest_start < b.source_start do
+    left_len = abs(b.source_start - a.dest_start)
+    mid_len  = abs(a.dest_start - (b.source_start + b.length))
 
-    start = %MapEntry{ source_start: b.source_start, dest_start: b.dest_start, length: new_start_len }
-    mid   = %MapEntry{ source_start: a.source_start, dest_start: b.dest_start, length: new_mid_len }
-    acc   = %MapEntry{ source_start: a.source_start + new_mid_len, dest_start: a.dest_start + new_mid_len, length: (a.length - new_mid_len) }
+    left  = %MapEntry{ source_start: a.source_start, dest_start: a.dest_start, length: left_len }
+    mid   = %MapEntry{ source_start: a.source_start + left_len, dest_start: b.dest_start + left_len, length: mid_len }
+    right = %MapEntry{ source_start: a.source_start + left_len + mid_len, dest_start: b.dest_start + left_len + mid_len, length: 0 }
 
-    [start, mid | mk_entry_overlaps(acc, bs)]
+    [left, mid, right]
   end
 
 
 
 
-  # def mk_entry_overlaps(a, [b | bs]) when a.dest_start >= b.source_start and a.dest_start < (b.source_start + b.length-1) do
-  #   new_entry_length = min(a.length, b.length)
 
-  #   new_entry = %MapEntry{ source_start: a.source_start, dest_start: b.dest_start, length: new_entry_length }
-  #   new_acc = %MapEntry{ source_start: a.source_start + new_entry_length, dest_start: a.dest_start + new_entry_length, length: a.length - new_entry_length }
 
-  #   [new_entry | mk_entry_overlaps(new_acc, bs)]
-  # end
-  # def mk_entry_overlaps(a, [b | bs]) do
-  #   [b | mk_entry_overlaps(a, bs)]
-  # end
 
   @spec sorted_entries(P.almanac(), atom()) :: list(P.mapEntry())
   def sorted_entries(almanac, which_map) do

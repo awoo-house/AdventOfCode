@@ -49,40 +49,14 @@ defmodule Advent5Test do
 
   ##### LETS DO IT SMARTER #####################################################
 
-  test "Case II" do
-    a = %M{ source_start: 0, dest_start: 100, length: 7 }
-                   b = %M{ source_start: 104, dest_start: 200, length: 5 }
+  test "Entry Overlap I" do
+    a = %M{ source_start: 10, dest_start: 50, length: 20 }
+    b = %M{ source_start: 45, dest_start: 100, length: 10 }
 
-    x =  %M{ source_start: 0, dest_start: 100, length: 4 } # 3 to go
-    y =  %M{ source_start: 4, dest_start: 200, length: 3 } # 0 to go
-    z =  %M{ source_start: 107, dest_start: 203, length: 2 } # Acc, tacked on at the very end
-
-    out = Advent5.mk_entry_overlaps(a, [b])
+    out = Advent5.mk_entry_overlaps(a, b)
     IO.inspect(out)
-
-    [t, u, v] = out
-
-    assert t == x
-    assert u == y
-    assert v == z
   end
 
-  test "Case IV" do
-    a = %M{ source_start: 95, dest_start: 100, length: 7 }
-    b = %M{ source_start: 90, dest_start: 200, length: 5 }
-
-    x =  %M{ source_start: 90, dest_start: 200, length: 5 } # 3 to go
-    y =  %M{ source_start: 95, dest_start: 205, length: 2 } # 0 to go
-
-    out = Advent5.mk_entry_overlaps(a, [b])
-    IO.inspect(out)
-
-    # [t, u, v] = out
-
-    # assert t == x
-    # assert u == y
-    # assert v == z
-  end
 
   test "entry_mult A" do
     almanac = Advent5.read_almanac("lib/Puzz5.example.input.txt")
