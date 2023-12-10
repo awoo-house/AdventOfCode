@@ -1,17 +1,38 @@
+%arara: lualatex: { shell: yes }
 \documentclass{article}
 
+%%%%% IMPORTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \usepackage{xparse}
+\usepackage[letterpaper, margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
 \usepackage{minted}
 
-% \setminted{
-%   linenos
-% }
+%%%%% SETUP AND DEFAULTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\setminted{
+  linenos
+}
+
+% This overwrites LaTeX's mechanism for writing out section names, which is a
+% totally normal and reasonable thing to do. Basically, this makes the section
+% counter print "Day 1." instead of just "1."
+\RenewDocumentCommand\thesection{}{Day \arabic{section}:}
+
+%%%%% TITLE AND AUTHOR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{Notes on Advent of Code 2023}
+\author{Fox Huston}
+
+%%%%% THE ACTUAL DOCUMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
+\maketitle
 
-% \RenewDocumentCommand\thesection{Day \section.}
-\section{Problem}
-Let's write about the day!
+\section{Trebuchet?!}
+Let's write about the trebuchet-day!
 
 Here's a code snippet I want to talk about:
 
@@ -19,5 +40,6 @@ Here's a code snippet I want to talk about:
 @spec add_one(integer()) :: integer()
 def add_one(a), do: a + 1
 \end{minted}
+It's very elixir.
 
 \end{document}
