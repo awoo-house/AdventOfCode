@@ -12,7 +12,6 @@ defmodule Day3 do
       end)
     end)
     |> Map.new()
-
   end
 
   def gear_indices_in_map(map) do
