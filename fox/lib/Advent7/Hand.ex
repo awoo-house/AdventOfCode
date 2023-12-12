@@ -36,7 +36,6 @@ defmodule Advent7.Hand do
   def compare_card_values([a | _], [b | _]) when a.value > b.value, do: :gt
   def compare_card_values(_, _), do: :lt
 
-
   @spec comp_hand_kinds(kind(), kind()) :: :lt | :eq | :gt
   defp comp_hand_kinds(a, b) do
     lookup = %{
