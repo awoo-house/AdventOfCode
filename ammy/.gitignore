@@ -8,3 +8,11 @@ erl_crash.dump
 *.ez
 aoc2023-*.tar
 /tmp/
+
+# LaTeX stuff
+*.log
+*.aux
+*.pdf
+*.pyg
+*.synctex.*
+blogablog/_minted*
