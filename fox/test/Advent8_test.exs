@@ -42,4 +42,40 @@ defmodule Advent8Test do
     assert Advent8.count_steps(inp) == 6
   end
 
+  test "Find all starts" do
+    inp = Advent8.parse_input("""
+      LR
+
+      11A = (11B, XXX)
+      11B = (XXX, 11Z)
+      11Z = (11B, XXX)
+      22A = (22B, XXX)
+      22B = (22C, 22C)
+      22C = (22Z, 22Z)
+      22Z = (22B, 22B)
+      XXX = (XXX, XXX)
+    """)
+
+    assert Advent8.find_all_starts(inp) == ["11A", "22A"]
+  end
+
+  test "Count from all starts" do
+    inp = Advent8.parse_input("""
+      LR
+
+      11A = (11B, XXX)
+      11B = (XXX, 11Z)
+      11Z = (11B, XXX)
+      22A = (22B, XXX)
+      22B = (22C, 22C)
+      22C = (22Z, 22Z)
+      22Z = (22B, 22B)
+      XXX = (XXX, XXX)
+    """)
+
+    out = Advent8.count_steps(inp)
+    IO.inspect(out)
+    assert out == 6
+  end
+
 end
