@@ -10,6 +10,7 @@
 \usepackage{emoji}
 \usepackage{tikz}
 
+
 \usepackage{minted}
 
 %%%%% SETUP AND DEFAULTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -23,7 +24,8 @@
 % counter print "Day 1." instead of just "1."
 \RenewDocumentCommand\thesection{}{Day \arabic{section}:}
 
-\usetikzlibrary {datavisualization.formats.functions}
+\usetikzlibrary{datavisualization.formats.functions}
+\usetikzlibrary{cd}
 
 %%%%% TITLE AND AUTHOR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -99,5 +101,32 @@ end
 This is the whole thing! It breaks out $d$ into a variable called ``nonsense'' as well as the upper and lower bounds. Now, since we need to always exceed $r$, and since the problem only cares about discrete values between the two points, we can actually just cheat a little bit, and nudge the left-most value a little bit to the right, and the rightmost value a little bit to the left, and rely on the truncation function (converts a float to an int by just lopping off the decimal part) to get us the correct bounds.
 
 And it does!
+
+
+\setcounter{section}{7}
+\section{Haunted Wasteland}
+\begin{figure*}[h]
+  \centering
+  % https://q.uiver.app/#q=WzAsNyxbMSwwLCJcXGRvdHsxfSJdLFsyLDEsIjIiXSxbMSwyLCIzIl0sWzAsMSwiNCJdLFs0LDAsIjEiXSxbNSwxLCIyIl0sWzMsMSwiXFxkb3R7M30iXSxbMCwxXSxbMSwyXSxbMiwzXSxbMywwXSxbNCw1XSxbNSw2XSxbNiw0XV0=
+\[\begin{tikzcd}
+	& {\dot{1}} &&& 1 \\
+	4 && 2 & {\dot{3}} && 2 \\
+	& 3
+	\arrow[from=1-2, to=2-3]
+	\arrow[from=2-3, to=3-2]
+	\arrow[from=3-2, to=2-1]
+	\arrow[from=2-1, to=1-2]
+	\arrow[from=1-5, to=2-6]
+	\arrow[from=2-6, to=2-4]
+	\arrow[from=2-4, to=1-5]
+\end{tikzcd}\]
+
+\caption{Cycles with accept states ($\dot{n}$)}
+\end{figure*}
+
+\paragraph{Observations.} For each loop of $\dot{1}234$, the sequence $12\dot{3}$ ``shifts backwards'' by one---the difference in lengths of the cycles. Is this always true? \bullet{} Given this difference in length (and where the accept states are in each sequence), when will the accept states line up? \bullet{} In this example, it takes 9 steps for the accept states to line up\dots Or rather, it takes 3 times around $12\dot{3}$.
+
+
+Perhaps it's something as simple as like\dots the distance between the dots $+ 1 \times$ the length of the shorter sequence?
 
 \end{document}

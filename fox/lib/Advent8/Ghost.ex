@@ -9,7 +9,7 @@ defmodule Advent8.Ghost do
     steps = inp.steps
 
 
-    initial_state = %{ map: map, steps: steps, sym: start }
+    initial_state = %{ map: map, steps: steps, sym: start, starting_sym: start }
     { :ok, initial_state }
   end
 
@@ -34,6 +34,11 @@ defmodule Advent8.Ghost do
       do 0
       else 1 + get_path_len(map, steps ++ [step], next_direction(map, sym, step))
     end
+  end
+
+  defp rotate([steps | steps]), do: { step, steps ++ [step] }
+
+  defp get_path_lens(map, steps, start) do
   end
 
   defp next_direction(desert_map, where, :l), do: elem(desert_map[where], 0)
