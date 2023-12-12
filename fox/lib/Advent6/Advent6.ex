@@ -2,7 +2,7 @@ defmodule Advent6 do
 
 
   @doc """
-    Absolute nonsense. See the latex doc in overleaf -_-
+    Absolute nonsense. See the latex doc in docs/notes.tx
   """
   @spec find_it(integer(), integer()) :: Range.t()
   def find_it(race_time, record) do

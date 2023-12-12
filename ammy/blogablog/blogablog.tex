@@ -1,0 +1,124 @@
+%arara: lualatex: { shell: yes }
+\documentclass{article}
+
+%%%%% IMPORTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{xparse}
+\usepackage[letterpaper, margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[normalem]{ulem}
+
+\usepackage{minted}
+
+%%%%% SETUP AND DEFAULTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\setminted{
+  linenos
+}
+\RenewDocumentCommand\thesection{}{Day \arabic{section}:}
+
+%%%%% TITLE AND AUTHOR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{Ammy's Notes on AOC (\sout{Alexandria Ocasio-Cortez} Advent of Code) 2023}
+\author{Ammy Surname}
+
+%%%%% THE ACTUAL DOCUMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\maketitle
+
+\section{Trebuchet?!}
+So this was among the first Elixir code i'd ever written, and i really didn't have a good sense of just...how the language really wants to work, yet. But that's okay! We can do things anyway.
+
+i had no real sense of what the difficulty of the problems would be for this, but this one wasn't really bad.
+
+Part one was fairly easy, though i was still very much in object-orientation land. I just stripped every non-digit with a regex and read the first and last:
+
+\begin{minted}{elixir}
+def extract_digits(string) do
+  digits = String.replace(string, ~r/\D+/, "")
+  first = digits |> String.at(0)
+  last = digits |> String.at(-1)
+  String.to_integer(first <> last)
+end
+\end{minted}
+
+Accumulate all of the scores, done.
+
+Part two is a bit trickier; I believe that everyone fell into the same trap, of not realizing that numbers that are smashed together should resolve to two numbers (e.g. "twone" is "21", not "tw1" or "2ne").
+
+I just figured out all of the possible numbers that this can be true for between 1-9 and did the stupid thing:
+
+\begin{minted}{elixir}
+def numberize(string) do
+  out = String.replace(string, "oneight", "18")
+  out = String.replace(out, "twone", "21")
+  out = String.replace(out, "threeight", "38")
+  out = String.replace(out, "fiveight", "58")
+  out = String.replace(out, "sevenine", "79")
+  out = String.replace(out, "eightwo", "82")
+  out = String.replace(out, "eighthree", "83")
+  out = String.replace(out, "nineight", "98")
+  out = String.replace(out, "nine", "9")
+  out = String.replace(out, "eight", "8")
+  out = String.replace(out, "seven", "7")
+  out = String.replace(out, "six", "6")
+  out = String.replace(out, "five", "5")
+  out = String.replace(out, "four", "4")
+  out = String.replace(out, "three", "3")
+  out = String.replace(out, "two", "2")
+  out = String.replace(out, "one", "1")
+  out
+end
+\end{minted}
+
+Some of the other solutions i've seen are more elegant, but this worked for a "learn a new language" scale problem, and now we're on to day two.
+
+\section{Cube Conundrum}
+
+This was the point at which i realized that, at times, part two of a problem would not be "reframe part one"; part two here asks a fundamentally different question using the same data.
+
+But both can reuse the same parsing function, the meat of which is this (after some manipulation of the input file to get it into lines):
+\begin{minted}{elixir}
+results =
+  String.split(l, ";", trim: true)
+  |> List.flatten()
+  |> Enum.map(fn l -> String.trim(l) end)
+  |> Enum.map(fn l -> String.split(l, ",") end)
+  |> List.flatten()
+  |> Enum.map(fn l -> String.trim(l) end)
+  |> Enum.reduce(%{}, fn str, map ->
+    [count_str, color] = String.split(str, " ")
+    count = String.to_integer(count_str)
+
+    map |> Map.update(color, count, fn val -> max(val, count) end)
+  end)
+\end{minted}
+
+This feels a lot more "functional programming yay!" than day 1 did, and i'm reasonably happy with it. (i also do not think both calls to `flatten` are necessary...)
+
+After generating a map of colors to their number of occurrences, we can \textit{either} check those occurrences against a set of maxima for part one, or take the product of their minima for part two.
+
+Not bad at all.
+
+\section{Gear Ratios}
+TBD
+\section{Scratchcards}
+TBD
+\section{If You Give A Seed A Fertilizer}
+TBD
+\section{Wait For It}
+TBD
+\section{Camel Cards}
+TBD
+\section{Haunted Wasteland}
+TBD
+\section{Mirage Maintenance}
+TBD
+\section{Pipe Maze}
+TBD
+
+
+
+\end{document}
