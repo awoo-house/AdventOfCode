@@ -3,8 +3,7 @@ defmodule Day7 do
   def hand_value(jokers, counts) do
     case counts do
       [] -> [jokers]
-      [h] -> [h + jokers]
-      [h | r] -> [h + jokers] ++ r
+      [h | r] -> [h + jokers | r]
     end
     |> hand_value
   end

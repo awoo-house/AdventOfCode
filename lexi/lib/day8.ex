@@ -60,8 +60,8 @@ defmodule Day8 do
 
   end
 
-  def go(map, current_node, instruction) when instruction == "R", do: Map.get(map[:rights], current_node)
-  def go(map, current_node, instruction) when instruction == "L", do: Map.get(map[:lefts], current_node)
+  def go(map, current_node, "R"), do: Map.get(map[:rights], current_node)
+  def go(map, current_node, "L"), do: Map.get(map[:lefts], current_node)
 
   def run do
     case File.read("./lib/inputs/day8.txt") do
