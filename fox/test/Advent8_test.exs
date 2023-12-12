@@ -5,7 +5,7 @@ defmodule Advent8Test do
 
   test "parse_graph_line" do
     out = Advent8.parse_graph_line(%{}, "AAA = (BBB, CCC)")
-    assert out == %{ :AAA => { :BBB, :CCC }}
+    assert out == %{ "AAA" => { "BBB", "CCC" }}
   end
 
   test "parse_direction_line" do
@@ -24,9 +24,9 @@ defmodule Advent8Test do
 
     assert out.steps == [ :l, :l, :r ]
     assert out.nodes == %{
-      :AAA => { :BBB, :BBB },
-      :BBB => { :AAA, :ZZZ },
-      :ZZZ => { :ZZZ, :ZZZ }
+      "AAA" => { "BBB", "BBB" },
+      "BBB" => { "AAA", "ZZZ" },
+      "ZZZ" => { "ZZZ", "ZZZ" }
     }
   end
 
@@ -39,7 +39,7 @@ defmodule Advent8Test do
       ZZZ = (ZZZ, ZZZ)
     """)
 
-    assert Advent8.count_steps(inp, :AAA) == 6
+    assert Advent8.count_steps(inp) == 6
   end
 
 end

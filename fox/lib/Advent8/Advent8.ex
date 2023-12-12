@@ -1,11 +1,11 @@
 defmodule Advent8 do
-  @type nodes() :: %{ atom() => { atom(), atom() } }
+  @type nodes() :: %{ String.t() => { String.t(), String.t() } }
   @type steps() :: list(:l | :r)
   @type desert_map() :: %{ steps: steps(), nodes: nodes() }
 
-  @spec count_steps(desert_map(), atom()) :: integer()
-  def count_steps(desert_map, start_symbol \\ :AAA)
-  def count_steps(_, :ZZZ), do: 0
+  @spec count_steps(desert_map(), String.t()) :: integer()
+  def count_steps(desert_map, start_symbol \\ "AAA")
+  def count_steps(_, "ZZZ"), do: 0
   def count_steps(%{ nodes: nodes, steps: [step | steps] }, sym) do
     1 + count_steps(%{ nodes: nodes, steps: steps ++ [step] }, next_direction(nodes, sym, step))
   end
@@ -27,13 +27,12 @@ defmodule Advent8 do
     %{ steps: parse_direction_line(dirs), nodes: nodes }
   end
 
-
   @spec parse_graph_line(nodes(), String.t()) :: nodes()
   def parse_graph_line(ns, line) do
     reg = ~r/([A-Z]+) *= *\(([A-Z]+), *([A-Z]+)\)/
 
     case Regex.run(reg, line, capture: :all_but_first) do
-      [id, l, r] -> Map.put(ns, String.to_atom(id), { String.to_atom(l), String.to_atom(r) })
+      [id, l, r] -> Map.put(ns, id, { l, r })
       o -> raise "Unparsable! (got #{o})"
     end
   end
@@ -44,4 +43,14 @@ defmodule Advent8 do
   def parse_direction_line([ ?L | rest ]), do: [:l | parse_direction_line(rest)]
   def parse_direction_line([ ?R | rest ]), do: [:r | parse_direction_line(rest)]
 
+  ##############################################################################
+
+  def run do
+    case File.read("./lib/Puzz8.input.txt") do
+      {:ok, inp} ->
+        inp = parse_input(inp)
+        count = count_steps(inp)
+        IO.puts("Number of steps: #{count}.")
+    end
+  end
 end
