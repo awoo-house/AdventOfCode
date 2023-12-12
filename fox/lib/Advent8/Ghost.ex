@@ -36,10 +36,10 @@ defmodule Advent8.Ghost do
     end
   end
 
-  defp rotate([steps | steps]), do: { step, steps ++ [step] }
+  # defp rotate([steps | steps]), do: { step, steps ++ [step] }
 
-  defp get_path_lens(map, steps, start) do
-  end
+  # defp get_path_lens(map, steps, start) do
+  # end
 
   defp next_direction(desert_map, where, :l), do: elem(desert_map[where], 0)
   defp next_direction(desert_map, where, :r), do: elem(desert_map[where], 1)

@@ -97,4 +97,35 @@ defmodule Advent8 do
         IO.puts("Number of steps: #{count}.")
     end
   end
+
+
+  defp mkAlts(seq) do
+    seq ++
+      Enum.map(seq, fn e -> "\\textcolor{red}{#{e}}" end)
+  end
+
+  defp mkGroup(_, _, _, 0), do: []
+  defp mkGroup(a, b, c, n) do
+    apart = List.to_string(Enum.to_list(Stream.take(a, 5)))
+    bpart = List.to_string(Enum.to_list(Stream.take(b, 5)))
+    cpart = List.to_string(Enum.to_list(Stream.take(c, 5)))
+
+    out = "\\SeqCompare{#{apart}}{\\SeqCompare{#{bpart}}{#{cpart}}}"
+
+    [out | mkGroup(Stream.drop(a, 5), Stream.drop(b, 5), Stream.drop(c, 5), n-1)]
+  end
+
+
+  def mkTexExamples do
+    a = Stream.cycle(mkAlts(["\\dot{1}", "2", "3", "4", "5"]))
+    b = Stream.cycle(mkAlts(["1", "\\dot{2}", "3", "4"]))
+    c = Stream.cycle(mkAlts(["1", "\\dot{2}", "3"]))
+
+    groups = mkGroup(a, b, c, 10)
+    groups = Enum.intersperse(groups, "\\qquad")
+
+    Enum.each(groups, &IO.puts/1)
+  end
+
+
 end
