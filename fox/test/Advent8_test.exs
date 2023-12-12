@@ -30,4 +30,16 @@ defmodule Advent8Test do
     }
   end
 
+  test "Part 1 Example" do
+    inp = Advent8.parse_input("""
+      LLR
+
+      AAA = (BBB, BBB)
+      BBB = (AAA, ZZZ)
+      ZZZ = (ZZZ, ZZZ)
+    """)
+
+    assert Advent8.count_steps(inp, :AAA) == 6
+  end
+
 end

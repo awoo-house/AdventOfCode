@@ -1,9 +1,19 @@
 defmodule Advent8 do
   @type nodes() :: %{ atom() => { atom(), atom() } }
   @type steps() :: list(:l | :r)
+  @type desert_map() :: %{ steps: steps(), nodes: nodes() }
 
+  @spec count_steps(desert_map(), atom()) :: integer()
+  def count_steps(desert_map, start_symbol \\ :AAA)
+  def count_steps(_, :ZZZ), do: 0
+  def count_steps(%{ nodes: nodes, steps: [step | steps] }, sym) do
+    1 + count_steps(%{ nodes: nodes, steps: steps ++ [step] }, next_direction(nodes, sym, step))
+  end
 
-  @spec parse_input(String.t()) :: %{ steps: steps(), nodes: nodes() }
+  defp next_direction(desert_map, where, :l), do: elem(desert_map[where], 0)
+  defp next_direction(desert_map, where, :r), do: elem(desert_map[where], 1)
+
+  @spec parse_input(String.t()) :: desert_map()
   def parse_input(inp) do
     [dirs | nodes] =
       String.split(inp, "\n") |>
