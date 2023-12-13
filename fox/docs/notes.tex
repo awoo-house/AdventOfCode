@@ -23,6 +23,7 @@
 % totally normal and reasonable thing to do. Basically, this makes the section
 % counter print "Day 1." instead of just "1."
 \RenewDocumentCommand\thesection{}{Day \arabic{section}:}
+\RenewDocumentCommand\thesubsection{}{Day \arabic{section}.\arabic{subsection}:}
 
 \usetikzlibrary{datavisualization.formats.functions}
 \usetikzlibrary{cd}
@@ -126,6 +127,30 @@ And it does!
 
 
 \NewDocumentCommand\SeqCompare{m m}{\genfrac{}{}{0pt}{0}{#1}{#2}}
+
+
+\paragraph{My Final Answer} This was derived by a lot of trial and error,
+ and working with the examples in this document. I would like to prove that this
+ does what I say it does, but for now: repeating sequences are represented as
+ pairs of $\langle \lambda, \phi \rangle$, where $\lambda$ is the length of
+ the sequence and $\phi$ is the accept state (which corresponds really nicely
+ to phase in a modular-arithmetic sense, which I describe below. For the
+ purposes of making writing things easier, I'll define $(-)_n$ to mean ``the
+ expression in parenthesis mod $n$,'' with anything outside the parens not
+ included.)
+
+ We want to be able to two concatenate sequences $\langle a, b \rangle \oplus
+ \langle c, d \rangle$, so that we get some new sequence such that the
+ length of the repeating sequence is the same as the number of steps it would
+ take before both sequences restarted simultaneously, and we want the phase
+ to be the step at which both sequences would have been in their accept
+ states. So, I'll define concatenation as:
+
+ \[
+  \langle a, b \rangle \oplus \langle c, d \rangle =
+  \langle ab, a \big[ (d \cdot (-1^a)) \% c \big] \rangle.
+\]
+
 
 \paragraph{Observations.} For each loop of $\dot{1}234$, the sequence $12\dot{3}$ ``shifts backwards'' by one---the difference in lengths of the cycles. Is this always true? \bullet{} Given this difference in length (and where the accept states are in each sequence), when will the accept states line up? \bullet{} In this example, it takes 8 steps for the accept states to line up\dots Or rather, it takes 3 times around $12\dot{3}$. I can write this schematically like this:
 
@@ -263,10 +288,20 @@ Notes:
 \SeqCompare{\textcolor{red}{\dot{1}}\textcolor{red}{2}\textcolor{red}{3}\textcolor{red}{4}\textcolor{red}{5}}{\SeqCompare{\textcolor{red}{4}1\dot{2}34}{\textcolor{red}{3}1\dot{2}3\textcolor{red}{1}}}
 \]
 
-\dots
-
-
 % \include{day_8_evenly.inc.tex}
-\include{day_8.inc.tex}
+% \include{day_8.inc.tex}
+
+\clearpage
+
+\subsection{Examples}
+\begin{figure}[h]
+\include{day_8_7042.inc.tex}
+\caption{\texttt{7042}}
+\end{figure}
+
+\begin{figure}[h]
+\include{day_8_7032.inc.tex}
+\caption{\texttt{7032}}
+\end{figure}
 
 \end{document}

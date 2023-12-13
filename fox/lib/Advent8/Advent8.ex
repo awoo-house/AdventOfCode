@@ -124,7 +124,7 @@ defmodule Advent8 do
     # b = Stream.cycle(mkAlts(["1", "\\dot{2}", "3", "4"]))
     # c = Stream.cycle(mkAlts(["1", "\\dot{2}", "3"]))
     a = ["\\dot{1}", "2", "3", "4", "5", "6", "7"]
-    b = ["1", "\\dot{2}", "3"]
+    b = ["1", "\\dot{2}", "3", "4"]
 
     sa = Stream.cycle(mkAlts(a))
     sb = Stream.cycle(mkAlts(b))
@@ -134,13 +134,13 @@ defmodule Advent8 do
 
     groups = mkGroup(sa, sb, grp_len, grp_count)
 
-    lines = Enum.chunk_every(groups, 8) |>
+    lines = Enum.chunk_every(groups, 5) |>
       Enum.map(fn line ->
         contents = Enum.intersperse(line, "\\qquad") |> Enum.join("\n")
         "\\[ #{contents} \\]"
       end)
 
-    path = "docs/day_8.inc.tex"
+    path = "docs/day_8_7042.inc.tex"
     File.write!(path, Enum.join(lines, "\n"))
     IO.puts("Wrote #{path}.")
   end
