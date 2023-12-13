@@ -273,8 +273,27 @@ i ended up writing my own infinite list generator by bolting on the consumed cha
 
 The rest of the problem is just recursing deeper and deeper and deeper until hitting ZZZ or a bunch of xxZs. My answer is not fast but it's easy to understand, i think. i may also revisit this one after getting to 50 stars.
 
+Okay, well, nevermind: as i was talking to Lexi about this, i realized in an epiphany that you don't actually have to walk everything to the end repeatedly if the paths are cycles. Fortunately, they are! So we just figure out how long it takes each starting point to get to xxZ and then take the lcm of the list.
+
 \section{Mirage Maintenance}
-TBD
+
+This one was also quite straightforward, but forced me to brush off how \textit{foldr} works a bit.
+
+The front and back halves of this problem are \textit{very} similar, such that it's easy enough to just have two functions \textit{next} and \textit{prev} and run through the input twice. i think i did something similar back on day 2.
+
+\begin{minted}{elixir}
+def prev(seq_chain) do
+  Enum.map(seq_chain, fn all -> List.first(all) end)
+  |> List.foldr(0, fn first_num, acc -> first_num - acc end)
+end
+
+def next(seq_chain) do
+  Enum.map(seq_chain, fn all -> List.last(all) end)
+  |> List.foldr(0, fn last_num, acc -> acc + last_num end)
+end
+\end{minted}
+
+I did fail to reverse the arguments in part two and end up with the wrong answer. That was a bit embarrassing. Oh well.
 \section{Pipe Maze}
 TBD
 
