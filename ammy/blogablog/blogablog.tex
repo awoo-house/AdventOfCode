@@ -103,19 +103,197 @@ After generating a map of colors to their number of occurrences, we can \textit{
 Not bad at all.
 
 \section{Gear Ratios}
-TBD
+
+i actually haven't finished this and need to come back to it! It's a lot!
+
+i got as far as "parse the map", which was fairly straightforward, but i don't think i have a reasonable data representation from there.
+
 \section{Scratchcards}
-TBD
+i was actually surprised that i was the only one of the four animals to solve this with a set intersection (in fact my answer here is the only one with a set use at all):
+\begin{minted}{elixir}
+def calculate_score(card) do
+  winning = String.split(List.first(card), " ", trim: true) |> Enum.into(MapSet.new())
+  actual = String.split(List.last(card), " ", trim: true) |> Enum.into(MapSet.new())
+  intersection = MapSet.intersection(winning, actual)
+  sz = MapSet.size(intersection)
+  if sz > 0, do: 2 ** (sz - 1), else: 0
+end
+\end{minted}
+
+Everything before the pipe, everything after, shove both into sets, the size of the intersection is the number of winners. Easy!
+
+Part two is wonky and i need to come back and finish it.
+
 \section{If You Give A Seed A Fertilizer}
-TBD
+This problem is apparently the hardest one, according to the number of completions. i do not have something that i would consider remotely efficient, but i do have something!
+
+This problem is where i first learned about \textit{chunk\_every\\2}, which has been very useful in further problems. Being able to just turn data into arbitrary tuples has been a great way to understand the data in a lot of these.
+
+My almanac-building function is moderately different than everyone else's, basically being a shitty state machine:
+\begin{minted}{elixir}
+def build(input) do
+  String.split(input, "\n", trim: true)
+  |> Enum.reduce({%{}, ""}, fn str, {map, last_ft} ->
+    cond do
+      String.starts_with?(str, "seeds") ->
+        # build the seed list
+        l = String.replace(str, ~r/.*\: /, "") |> String.split(" ", trim: true)
+        {Map.put_new(map, "seeds", l), last_ft}
+
+      starts_with_letter?(str) ->
+        s = String.split(str, " ") |> List.first() |> String.split("-", trim: true)
+        from_to = List.first(s) <> "-" <> List.last(s)
+        last_ft = from_to
+        {Map.put_new(map, from_to, []), last_ft}
+
+      str != "" ->
+        # not a new map, not seeds, not a blank line
+
+        {map
+         |> Map.update(last_ft, [], fn existing ->
+           new = String.split(str, " ")
+           existing ++ [new]
+         end), last_ft}
+
+      true ->
+        {map, last_ft}
+    end
+  end)
+end
+\end{minted}
+
+Seeds are a special case, then everything else is either a line that switches state to a new "now we are mapping X to Y" or something that should be associated with X to Y.
+
+Part two just uses the aforementioned \textit{chunk\_every\\2} to turn seed numbers and their ranges into gigantic lists:
+\begin{minted}{elixir}
+def convert_to_seed_ranges(seeds) do
+  Enum.chunk_every(seeds, 2)
+  |> Enum.flat_map(fn [a, b] ->
+    {ai, _} = Integer.parse(a)
+    {bi, _} = Integer.parse(b)
+    Enum.to_list(ai..(ai + bi))
+  end)
+end
+\end{minted}
+
+The end result is something that takes seventeen minutes to run. Cool?? i feel like i would like to revisit this, but i'd rather get to 50 stars first!
+
 \section{Wait For It}
-TBD
+
+\textit{🎵 I am the one thing in life I can controoooool~}
+
+Easiest problem other than number one so far, i think.
+
+A list of all possible speeds for a race of length n is trivial:
+\begin{minted}{elixir}
+def possible_speeds(n) when is_integer(n) and n > 0 do
+  Enum.map(1..n, fn i -> i * (n - i) end)
+end
+\end{minted}
+
+And then part one is just a pair of regices (fight me) that preserve whitespace, and part two strips all internal whitespace.
+
+Past that, the algorithm is identical:
+\begin{minted}{elixir}
+  lines = String.split(content, "\n", trim: true)
+
+  times =
+    String.replace(Enum.at(lines, 0), ~r/[^\d]+/, "")
+    |> String.split(~r/\s+/, trim: true)
+    |> Enum.map(&Integer.parse/1)
+  distances =
+    String.replace(Enum.at(lines, 1), ~r/[^\d]+/, "")
+    |> String.split(~r/\s+/, trim: true)
+    |> Enum.map(&Integer.parse/1)
+
+  times_only = for {n, _} <- times, do: n
+  distances_only = for {n, _} <- distances, do: n
+
+  {times_only, distances_only}
+\end{minted}
+
+
 \section{Camel Cards}
-TBD
+
+\textit{🎵 Camel by camel...~}
+
+So i compared notes with Lexi on this one after doing it and was stunned by how similar our answers are.
+
+For example, we both realized that any hand with a leading ace is better than any hand with a leading king, regardless of the value of the rest of the hand. This led me to write:
+\begin{minted}{elixir}
+  def index_mult(idx) when idx == 0, do: 41371
+  def index_mult(idx) when idx == 1, do: 2955
+  def index_mult(idx) when idx == 2, do: 211
+  def index_mult(idx) when idx == 3, do: 15
+  def index_mult(idx) when idx == 4, do: 1
+\end{minted}
+
+And them to write:
+\begin{minted}{elixir}
+  def index_mult(idx) when idx == 0, do: 50000
+  def index_mult(idx) when idx == 1, do: 3300
+  def index_mult(idx) when idx == 2, do: 220
+  def index_mult(idx) when idx == 3, do: 15
+  def index_mult(idx) when idx == 4, do: 1
+\end{minted}
+
+We also both had to realization that a joker will just bolt itself onto the card with the most counts, raising its rank by one.
+
+Real "same animal" vibes.
+
+My "ranks" are inverted from everyone else who has answered this problem; upon reflecting on why, it's because i think of ranks in like, game terms. The rank 1 player is the best player. This means i do have to reverse my list at the end though.
+
+This problem is how i learned how two-layer sorting works in Elixir:
+\begin{minted}{elixir}
+defp compare_hands(hand1, hand2) do
+  ...
+
+  if hand_rank_1 != hand_rank_2 do
+    hand_rank_1 < hand_rank_2
+  else
+    card_value_sorter(Enum.at(hand1, 0)) < card_value_sorter(Enum.at(hand2, 0))
+  end
+end
+\end{minted}
+
+i personally find this hard to reason about, but the end result is correct!
+
 \section{Haunted Wasteland}
-TBD
+
+This is where i finally learned to love Elixir's ability to have extremely-specific function overloads, terminating my recursion with:
+\begin{minted}{elixir}
+  def traverse(_, _, "ZZZ", depth) do
+    depth
+  end
+\end{minted}
+
+Apparently this is very Haskell. It's neat!
+
+i ended up writing my own infinite list generator by bolting on the consumed character to the end of the list after popping it, but apparently the idiomatic way to do this is via \textit{Stream.cycle}. i'll have to go back to learn that at some point, or perhaps a future problem will give me a nice opportunity.
+
+The rest of the problem is just recursing deeper and deeper and deeper until hitting ZZZ or a bunch of xxZs. My answer is not fast but it's easy to understand, i think. i may also revisit this one after getting to 50 stars.
+
+Okay, well, nevermind: as i was talking to Lexi about this, i realized in an epiphany that you don't actually have to walk everything to the end repeatedly if the paths are cycles. Fortunately, they are! So we just figure out how long it takes each starting point to get to xxZ and then take the lcm of the list.
+
 \section{Mirage Maintenance}
-TBD
+
+This one was also quite straightforward, but forced me to brush off how \textit{foldr} works a bit.
+
+The front and back halves of this problem are \textit{very} similar, such that it's easy enough to just have two functions \textit{next} and \textit{prev} and run through the input twice. i think i did something similar back on day 2.
+
+\begin{minted}{elixir}
+def prev(seq_chain) do
+  Enum.map(seq_chain, fn all -> List.first(all) end)
+  |> List.foldr(0, fn first_num, acc -> first_num - acc end)
+end
+
+def next(seq_chain) do
+  Enum.map(seq_chain, fn all -> List.last(all) end)
+  |> List.foldr(0, fn last_num, acc -> acc + last_num end)
+end
+\end{minted}
+
+I did fail to reverse the arguments in part two and end up with the wrong answer. That was a bit embarrassing. Oh well.
 \section{Pipe Maze}
 TBD
 
