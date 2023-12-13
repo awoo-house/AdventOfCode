@@ -130,15 +130,18 @@ And it does!
 \paragraph{Observations.} For each loop of $\dot{1}234$, the sequence $12\dot{3}$ ``shifts backwards'' by one---the difference in lengths of the cycles. Is this always true? \bullet{} Given this difference in length (and where the accept states are in each sequence), when will the accept states line up? \bullet{} In this example, it takes 8 steps for the accept states to line up\dots Or rather, it takes 3 times around $12\dot{3}$. I can write this schematically like this:
 
 \[
+  \texttt{4032} \qquad
   \SeqCompare{\dot{1}234}{12\dot{3}\textcolor{red}{1}} \qquad
   \SeqCompare{\dot{1}234}{\textcolor{red}{2\dot{3}}12} \qquad
   \SeqCompare{\dot{\mathbf{1}}234}{\dot{\mathbf{3}}\textcolor{red}{12\dot{3}}} \qquad
   \text{(8 steps.)}
 \]
+
 (The red text just shows alternate loops of the shorter sequence across the
 breaks.) Each of these blocks show one loop around \emph{the longer} sequence. What if we move the dots? Let's say the longer sequence is now $1\dot{2}34$:
 
 \[
+  \texttt{4132} \qquad
   \SeqCompare{1\dot{2}34}{12\dot{3}\textcolor{red}{1}} \qquad
   \SeqCompare{1\dot{\mathbf{2}}34}{\textcolor{red}{2\dot{\mathbf{3}}}12} \qquad
   \SeqCompare{1\dot{2}34}{\dot{3}\textcolor{red}{12\dot{3}}} \qquad
@@ -149,25 +152,62 @@ breaks.) Each of these blocks show one loop around \emph{the longer} sequence. W
 So here's the intuition: each loop through the longer??? one, the distance between the two accept states gets closer. By how much? Is it by $\big| |a| - |b| \big|$, maybe?
 
 
+\NewDocumentCommand{\Seq}{m O{\lambda} O{\phi}}{#1_{#2#3}}
+\NewDocumentCommand{\Seqn}{m m}{\Seq{#1}[\lambda_{#2}][\phi_{#2}]}
+
+The $n^\text{th}$ step of each sequence can be described as $\Seq{s}(n) = (n +
+\phi) \mod m$ (and $\phi < \lambda$), where $\lambda$ is the total length of the
+sequence, and $\phi$ is the accept state.
+
+
+% If this is true, then what we want to do, for any two sequences, is find $n$ such that
+% \[
+%   \Seqn{s}{1}(n) = \Seqn{s}{2}(n).
+% \]
+
+Any two sequences $s, t$ form a new sequence
+
 \[
+  \Seqn{u}{u} = \Seqn{s}{1} \oplus \Seqn{t}{2},
+\]
+
+(assuming $\lambda_1 > \lambda_2$) with its own length \emph{and} phase. The
+period (length) of $u$ is always $\lambda_1 \cdot \lambda_2$; if the phases are
+equal, then the new phase is just $\phi_u = \phi_1 = \phi_2$. In general,
+$\phi_u$ is $\lambda_1 * (\lambda_2 - \phi_2) + \phi_1$???
+
+Notes:
+\begin{itemize}
+  \item Each sequence is uniquely determined by the pair $\langle \lambda, \phi \rangle$.
+  \item Sequences with $n$ accept states are just sets of sequences $\{ \langle \lambda, \phi_1 \rangle, \dots \langle \lambda, \phi_n \rangle \}$.
+  \item $\lambda_2$ \emph{cannot evenly divide} $\lambda_1$, since there will be no ``phase shift'' across the sequence. (However, if $\phi_1 = \phi_2$, then a new sequence can still be created; it is just $s$???).
+  \item Phase Shift = $\lambda_1 - 2\lambda_2$?. So... the phases unify to this?
+  \item I've taken to labeling a comparison $\langle \lambda_1, \phi_1 \rangle, \langle \lambda_2, \phi_2 \rangle$ as the concatenation of these numbers in a typewriter font. For instance, comparing $\langle 5, 0 \rangle$ and $\langle 3, 2 \rangle$, I'll write \texttt{5032}.
+\end{itemize}
+
+
+
+\[
+  \texttt{5032} \qquad
   \SeqCompare{\dot{1}2345}{12\dot{3}\textcolor{red}{12}} \qquad
   \SeqCompare{\dot{1}2345}{\textcolor{red}{\dot{3}}12\dot{3}\textcolor{red}{1}} \qquad
   \SeqCompare{\dot{1}2345}{\textcolor{red}{2\dot{3}}12\dot{3}} \qquad
-  \text{(? steps.)}
+  \text{(5 steps.)}
 \]
 
-So I think it might be just: if $a$ and $b$ are sequences, and
-$\delta$ is the (shortest) distance between two accept states in two sequences,
-then the total number of steps to get there will be
+% So I think it might be just: if $a$ and $b$ are sequences, and
+% $\delta$ is the (shortest) distance between two accept states in two sequences,
+% then the total number of steps to get there will be
+
+% \[
+%   \frac{\big| |a| - |b| \big| \cdot \max(|a|, |b|)}{\delta} + \dot{a},
+% \]
+% where $\dot{a}$ is the index of the accept point in the longer sequence.
+
+% Does this work for our examples so far?
 
 \[
-  \frac{\big| |a| - |b| \big| \cdot \max(|a|, |b|)}{\delta} + \dot{a},
-\]
-where $\dot{a}$ is the index of the accept point in the longer sequence.
-
-Does this work for our examples so far?
-
-\[
+  \texttt{5031} \qquad
   \SeqCompare{\dot{1}2345}
     {1\dot{2}3\textcolor{red}{1\dot{2}}} \qquad
   \SeqCompare{\dot{1}2345}
@@ -178,6 +218,7 @@ Does this work for our examples so far?
 \]
 
 \NewDocumentCommand\rr{m}{\textcolor{red}{#1}}
+
 
 \[
 \SeqCompare{\dot{1}2345}{\SeqCompare{1\dot{2}34\textcolor{red}{1}}{1\dot{2}3\textcolor{red}{1}\textcolor{red}{\dot{2}}}}
@@ -200,6 +241,32 @@ Does this work for our examples so far?
 \qquad
 \SeqCompare{\textcolor{red}{\dot{1}}\textcolor{red}{2}\textcolor{red}{3}\textcolor{red}{4}\textcolor{red}{5}}{\SeqCompare{\textcolor{red}{\dot{2}}\textcolor{red}{3}\textcolor{red}{4}1\dot{2}}{\textcolor{red}{1}\textcolor{red}{\dot{2}}\textcolor{red}{3}1\dot{2}}}
 \]
+\[
+\SeqCompare{\dot{1}2345}{\SeqCompare{34\textcolor{red}{1}\textcolor{red}{\dot{2}}\textcolor{red}{3}}{3\textcolor{red}{1}\textcolor{red}{\dot{2}}\textcolor{red}{3}1}}
+\qquad
+\SeqCompare{\textcolor{red}{\dot{1}}\textcolor{red}{2}\textcolor{red}{3}\textcolor{red}{4}\textcolor{red}{5}}{\SeqCompare{\textcolor{red}{4}1\dot{2}34}{\dot{2}3\textcolor{red}{1}\textcolor{red}{\dot{2}}\textcolor{red}{3}}}
+\qquad
+\SeqCompare{\dot{1}2345}{\SeqCompare{\textcolor{red}{1}\textcolor{red}{\dot{2}}\textcolor{red}{3}\textcolor{red}{4}1}{1\dot{2}3\textcolor{red}{1}\textcolor{red}{\dot{2}}}}
+\qquad
+\SeqCompare{\textcolor{red}{\dot{1}}\textcolor{red}{2}\textcolor{red}{3}\textcolor{red}{4}\textcolor{red}{5}}{\SeqCompare{\dot{2}34\textcolor{red}{1}\textcolor{red}{\dot{2}}}{\textcolor{red}{3}1\dot{2}3\textcolor{red}{1}}}
+\qquad
+\SeqCompare{\dot{1}2345}{\SeqCompare{\textcolor{red}{3}\textcolor{red}{4}1\dot{2}3}{\textcolor{red}{\dot{2}}\textcolor{red}{3}1\dot{2}3}}
+\qquad
+\SeqCompare{\textcolor{red}{\dot{1}}\textcolor{red}{2}\textcolor{red}{3}\textcolor{red}{4}\textcolor{red}{5}}{\SeqCompare{4\textcolor{red}{1}\textcolor{red}{\dot{2}}\textcolor{red}{3}\textcolor{red}{4}}{\textcolor{red}{1}\textcolor{red}{\dot{2}}\textcolor{red}{3}1\dot{2}}}
+\qquad
+\SeqCompare{\dot{1}2345}{\SeqCompare{1\dot{2}34\textcolor{red}{1}}{3\textcolor{red}{1}\textcolor{red}{\dot{2}}\textcolor{red}{3}1}}
+\qquad
+\SeqCompare{\textcolor{red}{\dot{1}}\textcolor{red}{2}\textcolor{red}{3}\textcolor{red}{4}\textcolor{red}{5}}{\SeqCompare{\textcolor{red}{\dot{2}}\textcolor{red}{3}\textcolor{red}{4}1\dot{2}}{\dot{2}3\textcolor{red}{1}\textcolor{red}{\dot{2}}\textcolor{red}{3}}}
+\qquad
+\SeqCompare{\dot{1}2345}{\SeqCompare{34\textcolor{red}{1}\textcolor{red}{\dot{2}}\textcolor{red}{3}}{1\dot{2}3\textcolor{red}{1}\textcolor{red}{\dot{2}}}}
+\qquad
+\SeqCompare{\textcolor{red}{\dot{1}}\textcolor{red}{2}\textcolor{red}{3}\textcolor{red}{4}\textcolor{red}{5}}{\SeqCompare{\textcolor{red}{4}1\dot{2}34}{\textcolor{red}{3}1\dot{2}3\textcolor{red}{1}}}
+\]
 
+\dots
+
+
+% \include{day_8_evenly.inc.tex}
+\include{day_8.inc.tex}
 
 \end{document}

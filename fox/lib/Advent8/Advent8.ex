@@ -104,27 +104,45 @@ defmodule Advent8 do
       Enum.map(seq, fn e -> "\\textcolor{red}{#{e}}" end)
   end
 
+  @spec mkGroup(any(), any(), integer(), integer()) :: list()
   defp mkGroup(_, _, _, 0), do: []
-  defp mkGroup(a, b, c, n) do
-    apart = List.to_string(Enum.to_list(Stream.take(a, 5)))
-    bpart = List.to_string(Enum.to_list(Stream.take(b, 5)))
-    cpart = List.to_string(Enum.to_list(Stream.take(c, 5)))
+  defp mkGroup(a, b, grp, n) do
+    apart = List.to_string(Enum.to_list(Stream.take(a, grp)))
+    bpart = List.to_string(Enum.to_list(Stream.take(b, grp)))
+    # cpart = List.to_string(Enum.to_list(Stream.take(c, 5)))
 
-    out = "\\SeqCompare{#{apart}}{\\SeqCompare{#{bpart}}{#{cpart}}}"
 
-    [out | mkGroup(Stream.drop(a, 5), Stream.drop(b, 5), Stream.drop(c, 5), n-1)]
+    out = "\\SeqCompare{#{apart}}{#{bpart}}"
+
+    [out | mkGroup(Stream.drop(a, grp), Stream.drop(b, grp), grp, n-1)]
   end
 
 
+  @spec mkTexExamples() :: none()
   def mkTexExamples do
-    a = Stream.cycle(mkAlts(["\\dot{1}", "2", "3", "4", "5"]))
-    b = Stream.cycle(mkAlts(["1", "\\dot{2}", "3", "4"]))
-    c = Stream.cycle(mkAlts(["1", "\\dot{2}", "3"]))
+    # a = Stream.cycle(mkAlts(["\\dot{1}", "2", "3", "4", "5"]))
+    # b = Stream.cycle(mkAlts(["1", "\\dot{2}", "3", "4"]))
+    # c = Stream.cycle(mkAlts(["1", "\\dot{2}", "3"]))
+    a = ["\\dot{1}", "2", "3", "4", "5", "6", "7"]
+    b = ["1", "\\dot{2}", "3"]
 
-    groups = mkGroup(a, b, c, 10)
-    groups = Enum.intersperse(groups, "\\qquad")
+    sa = Stream.cycle(mkAlts(a))
+    sb = Stream.cycle(mkAlts(b))
 
-    Enum.each(groups, &IO.puts/1)
+    grp_count = 20
+    grp_len   = Enum.map([a, b], &length/1) |> Enum.max
+
+    groups = mkGroup(sa, sb, grp_len, grp_count)
+
+    lines = Enum.chunk_every(groups, 8) |>
+      Enum.map(fn line ->
+        contents = Enum.intersperse(line, "\\qquad") |> Enum.join("\n")
+        "\\[ #{contents} \\]"
+      end)
+
+    path = "docs/day_8.inc.tex"
+    File.write!(path, Enum.join(lines, "\n"))
+    IO.puts("Wrote #{path}.")
   end
 
 
