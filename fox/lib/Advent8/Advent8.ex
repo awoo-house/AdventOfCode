@@ -54,6 +54,41 @@ defmodule Advent8 do
       |> Enum.to_list
   end
 
+  # @spec find_loop_for_start(desert_map(), String.t()) :: %{ length: integer(), phases: list(integer()) }
+  def get_path(map, [step | steps], sym) do
+    stop_condition? = String.ends_with?(sym, "Z")
+    if stop_condition?
+      do []
+      else [next_direction(map, sym, step) | get_path(map, steps ++ [step], next_direction(map, sym, step))]
+    end
+  end
+
+  @spec path_to_pair(list()) :: { integer(), integer() }
+  def path_to_pair(ls) do
+    l = length(ls)
+    { l, l - 1}
+  end
+
+  @spec pair_concat({ integer(), integer() }, { integer(), integer() }) :: { integer(), integer() }
+  # def pair_concat({ a, b }, { c, d }) when c > a, do: pair_concat({ c, d }, { a, b })
+  def pair_concat({ a, b }, { c, d }) do
+    { a * c, a * Integer.mod(d * ((-1) ** (a)), c) + b }
+  end
+
+  def count_it(map) do
+    find_all_starts(map)
+    |> Enum.map(&(get_path(map, map.steps, &1)))
+    |> Enum.map(&path_to_pair/1)
+    |> Enum.reduce(fn (pr, acc) ->
+      IO.puts("Reduce #{inspect(pr)}, #{inspect(acc)}")
+      {x, y} = pair_concat(pr, acc)
+      IO.inspect({x, y})
+      {x, y+1}
+    end)
+  end
+
+  defp next_direction(desert_map, where, :l), do: elem(desert_map.nodes[where], 0)
+  defp next_direction(desert_map, where, :r), do: elem(desert_map.nodes[where], 1)
 
   ##### INPUT PROCESSING #######################################################
 
