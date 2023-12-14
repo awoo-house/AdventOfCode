@@ -294,9 +294,19 @@ end
 \end{minted}
 
 I did fail to reverse the arguments in part two and end up with the wrong answer. That was a bit embarrassing. Oh well.
+
 \section{Pipe Maze}
-TBD
 
+Nightmare. This one took me most of a day.
 
+Part one is like...relatively straightforward, i guess: traverse every path out of the starting connector, adding one to the distance of the current connector from the start each time you do so. Then you just take the maximum of that list of values. Not that bad.
+
+Part two is...ugh.
+
+i ended up solving this with, effectively, a computer graphics hack: some point is inside SHAPE if you can cast a ray in some direction and it crosses a border an odd number of times.
+
+So, basically, we just pick every point on the grid and fire a ray diagonally down and to the right. If it crosses a pipe calculated in part one an odd number of times, it's inside the loop. Count them all. Done.
+
+This feels \textit{aggressively} cursed and i have no idea what's "expected" here.
 
 \end{document}
