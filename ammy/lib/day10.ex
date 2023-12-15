@@ -142,7 +142,7 @@ defmodule AmmyTen do
               crosses = fill_insides(lines, dists, row_idx, col_idx, width, height, 0)
 
               if rem(crosses, 2) == 1 do
-                acc = acc + 1
+                acc + 1
               else
                 acc
               end

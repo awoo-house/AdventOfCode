@@ -309,4 +309,25 @@ So, basically, we just pick every point on the grid and fire a ray diagonally do
 
 This feels \textit{aggressively} cursed and i have no idea what's "expected" here.
 
+\section{Cosmic Expansion}
+TiL that ranges in Elixir are inclusive.
+
+TiAL that ranges in Elixir can go backwards.
+
+Well, at least once i got part one down, part two was ultra-trivial. :3
+
+I suspect that there is a more functional way to write
+\begin{minted}{elixir}
+acc =
+  if min_row < max_row do
+    Enum.reduce(min_row..(max_row - 1), acc, fn r, acc ->
+      # part one
+      # acc + if r in empty_rows, do: 2, else: 1
+      acc + if r in empty_rows, do: 1000000, else: 1
+    end)
+  else
+    acc
+  end
+\end{minted}
+than i did. Overall i am happy with this solution, though.
 \end{document}
