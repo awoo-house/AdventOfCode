@@ -3,13 +3,15 @@ defmodule Advent10.Node do
   @type direction() :: :up | :down | :left | :right | :zero
 
   @spec pretty(pipe(), { pipe(), pipe() }) :: String.t()
-  def pretty(node, { l, r }) do
-    dirOne = dir(node, l)
-    dirTwo = dir(node, r)
-
-    dirs_string(dirOne, dirTwo)
+  def pretty(node, children) do
+    {a, b} = node_dirs(node, children)
+    dirs_string(a, b)
   end
 
+  @spec node_dirs(pipe(), { pipe(), pipe() }) :: { direction(), direction() }
+  def node_dirs(node, {l, r}) do
+    { dir(node, l), dir(node, r) }
+  end
 
   @spec dirs_string(direction(), direction()) :: String.t()
   def dirs_string(:up,    :down ), do: "║"
