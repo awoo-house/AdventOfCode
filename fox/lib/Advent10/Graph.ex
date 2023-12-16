@@ -2,7 +2,7 @@ defmodule Advent10.Graph do
 
   @type coord() :: { integer(), integer() }
 
-  @doc """
+  @typedoc """
   This maps from x-y pairs to a pair of x-y pairs, representing the node position
   and the two nodes to which it attaches.
   """
