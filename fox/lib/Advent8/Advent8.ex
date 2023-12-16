@@ -26,20 +26,20 @@ defmodule Advent8 do
     # step_servers(pids)
   end
 
-  @spec step_servers(list(pid()), integer()) :: integer()
-  defp step_servers(pids, current_count \\ 1)
-  defp step_servers(pids, current_count) do
-    outs = Enum.map(pids, &(GenServer.call(&1, :step)))
-    end_state? = Enum.all?(outs, fn s -> String.ends_with?(s, "Z") end)
+  # @spec step_servers(list(pid()), integer()) :: integer()
+  # defp step_servers(pids, current_count \\ 1)
+  # defp step_servers(pids, current_count) do
+  #   outs = Enum.map(pids, &(GenServer.call(&1, :step)))
+  #   end_state? = Enum.all?(outs, fn s -> String.ends_with?(s, "Z") end)
 
-    # [outs, _] = GenServer.multi_call(Advent8.Ghost, :tep)
-    # end_state? = Enum.all?(outs, fn { _, s } -> String.ends_with?(s, "Z") end)
+  #   # [outs, _] = GenServer.multi_call(Advent8.Ghost, :tep)
+  #   # end_state? = Enum.all?(outs, fn { _, s } -> String.ends_with?(s, "Z") end)
 
-    if end_state?
-      do current_count
-      else step_servers(pids, current_count+1)
-    end
-  end
+  #   if end_state?
+  #     do current_count
+  #     else step_servers(pids, current_count+1)
+  #   end
+  # end
   # def count_steps(%{ nodes: nodes, steps: [step | steps] }, sym) do
   #   if String.ends_with?(sym, "Z")
   #     do 0
@@ -153,7 +153,7 @@ defmodule Advent8 do
   end
 
 
-  @spec mkTexExamples() :: none()
+  @spec mkTexExamples() :: :ok
   def mkTexExamples do
     # a = Stream.cycle(mkAlts(["\\dot{1}", "2", "3", "4", "5"]))
     # b = Stream.cycle(mkAlts(["1", "\\dot{2}", "3", "4"]))

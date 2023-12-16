@@ -8,17 +8,17 @@ defmodule Advent10.Graph do
   """
   @type graph() :: %{ coord() => { coord(), coord() } }
 
-  @spec distance_from(graph(), coord()) :: %{ coord() => integer() }
-  def distance_from(g, start, current_d \\ 0, out \\ %{}) do
-    { l, r } = g[start]
+  # @spec distance_from(graph(), coord()) :: %{ coord() => integer() }
+  # def distance_from(g, start, current_d \\ 0, out \\ %{}) do
+  #   { l, _ } = g[start]
 
-    ll = Map.get(out, l, 0)
+  #   ll = Map.get(out, l, 0)
 
 
-    if !Map.has_key?(l) do
-      out = Map.put(out, l, current_d)
-    end
-  end
+  #   if !Map.has_key?(l) do
+  #     out = Map.put(out, l, current_d)
+  #   end
+  # end
 
 
 end

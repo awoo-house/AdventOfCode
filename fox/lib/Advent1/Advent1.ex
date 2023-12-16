@@ -47,7 +47,7 @@ defmodule Advent1 do
 
   def run do
     case File.read("./lib/Puzz1.input.txt") do
-      {:error, reason} -> IO.puts("File read failed because: " <> reason)
+      {:error, reason} -> IO.puts("File read failed because: #{inspect(reason)}")
       {:ok, input} ->
         IO.puts(findNumbers(input))
     end
