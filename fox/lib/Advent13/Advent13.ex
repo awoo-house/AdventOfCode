@@ -3,7 +3,26 @@ defmodule Advent13 do
 
   @type mirrormap() :: list(integer())
 
+  ##### ENTRYPOINT #############################################################
+
+  def run do
+    case File.read("./lib/Puzz13.input.txt") do
+      {:error, why} -> raise "Could not read file! #{inspect(why)}"
+      {:ok, inp} -> IO.puts("Magic Number = #{get_score(inp)}")
+    end
+  end
+
   ##### API ####################################################################
+
+  @spec get_score(String.t()) :: integer()
+  def get_score(inp) do
+    parse_maps(inp)
+    |> Enum.map(&find_mirror_line/1)
+    |> Enum.reduce(0, fn
+        ({:row, r}, acc) -> acc + (100 * (r+1))
+        ({:col, c}, acc) -> acc + (c+1)
+      end)
+  end
 
   @spec parse_maps(String.t()) :: list(list(charlist()))
   def parse_maps(inp) do
@@ -35,7 +54,18 @@ defmodule Advent13 do
     find_mirror_row(parsed, maybes)
   end
 
-  ##### ALGORITHM ##############################################################
+  ##### ALGORITHM - PART II ####################################################
+
+  defp count_ones(0), do: 0
+  defp count_ones(a) do
+    (a &&& 1) + count_ones(a >>> 1)
+  end
+
+  def hamming_dist(a, b) do
+    count_ones(bxor(a, b))
+  end
+
+  ##### ALGORITHM - PART I #####################################################
 
   #   012345678
   # 0 #...##..#
@@ -62,7 +92,7 @@ defmodule Advent13 do
   def find_possible_mirror_lines(xs) do
     Enum.zip(xs, Enum.drop(xs, 1))
     |> Enum.with_index
-    |> Enum.filter( fn { {a,b}, _ } -> bxor(a,b) == 0 end)
+    |> Enum.filter( fn { {a,b}, _ } -> hamming_dist(a,b) < 2 end)
     |> Enum.map(fn { _, i } -> i end)
   end
 
@@ -71,8 +101,11 @@ defmodule Advent13 do
     down = Stream.take(xs, row+1) |> Enum.reverse
     up   = Stream.drop(xs, row+1)
 
-    Enum.zip(down, up)
-    |> Enum.all?(fn { a, b } -> bxor(a, b) == 0 end)
+    total_dist = Enum.zip(down, up)
+                |> Enum.map(fn { a, b } -> hamming_dist(a, b) end)
+                |> Enum.sum
+
+    total_dist == 1
   end
 
   @spec find_mirror_row(mirrormap(), list(integer())) :: integer() | nil
