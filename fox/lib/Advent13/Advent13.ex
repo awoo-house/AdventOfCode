@@ -5,7 +5,19 @@ defmodule Advent13 do
 
   ##### API ####################################################################
 
-  @spec find_mirror_line(String.t()) :: { :row, integer() }, { :col, integer() }
+  @spec parse_maps(String.t()) :: list(list(charlist()))
+  def parse_maps(inp) do
+    String.split(inp, "\n")
+    |> Enum.map(&String.trim/1)
+    |> Enum.map(&String.to_charlist/1)
+    |> Enum.chunk_by(&(length(&1) > 0))
+    |> Enum.filter(fn
+      [[]] -> false
+      _    -> true
+    end)
+  end
+
+  @spec find_mirror_line(list(charlist())) :: { :row, integer() }, { :col, integer() }
   def find_mirror_line(inp) do
     case parse_and_find(inp) do
       nil -> case parse_and_find(inp, transpose: true) do
@@ -16,9 +28,9 @@ defmodule Advent13 do
     end
   end
 
-  @spec parse_and_find(String.t(), keyword()) :: integer() | nil
+  @spec parse_and_find(list(charlist()), keyword()) :: integer() | nil
   defp parse_and_find(inp, opts \\ []) do
-    parsed = parse(inp, opts)
+    parsed = to_mirrormap(inp, opts)
     maybes = find_possible_mirror_lines(parsed)
     find_mirror_row(parsed, maybes)
   end
@@ -34,14 +46,10 @@ defmodule Advent13 do
   # 5 ..##..###
   # 6 #....#..#
 
-  @spec parse(String.t(), keyword()) :: mirrormap()
-  def parse(inp, opts \\ []) do
-    String.split(inp, "\n")
-    |> Enum.map(&String.trim/1)
-    |> Enum.filter(&(String.length(&1) > 0))
-    |> Enum.map(&String.to_charlist/1)
-    |> then(fn xs -> if Keyword.get(opts, :transpose, false) do transpose(xs) else xs end end)
-    |> Enum.map(&line_to_int/1)
+  @spec to_mirrormap(list(charlist()), keyword()) :: mirrormap()
+  def to_mirrormap(inp, opts \\ []) do
+    inp = if Keyword.get(opts, :transpose, false) do transpose(inp) else inp end
+    Enum.map(inp, &line_to_int/1)
   end
 
   @spec line_to_int(charlist(), integer()) :: integer()
@@ -64,11 +72,7 @@ defmodule Advent13 do
     up   = Stream.drop(xs, row+1)
 
     Enum.zip(down, up)
-    |> Enum.all?(fn
-      { a, b } ->
-        IO.puts("Checking #{a} and #{b}")
-        bxor(a, b) == 0
-    end)
+    |> Enum.all?(fn { a, b } -> bxor(a, b) == 0 end)
   end
 
   @spec find_mirror_row(mirrormap(), list(integer())) :: integer() | nil

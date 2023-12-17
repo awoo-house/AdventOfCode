@@ -14,7 +14,7 @@ defmodule Advent13Test do
 
 
   test "find possible mirror lines" do
-    inp = parse("""
+    [inp] = parse_maps("""
     #...##..#
     #....#..#
     ..##..###
@@ -23,6 +23,8 @@ defmodule Advent13Test do
     ..##..###
     #....#..#
     """)
+
+    inp = to_mirrormap(inp)
 
     maybes = find_possible_mirror_lines(inp)
     line = find_mirror_row(inp, maybes)
@@ -31,7 +33,7 @@ defmodule Advent13Test do
   end
 
   test "should not find mirror line when vertical" do
-    inp = parse("""
+    [inp] = parse_maps("""
     #.##..##.
     ..#.##.#.
     ##......#
@@ -41,6 +43,8 @@ defmodule Advent13Test do
     #.#.##.#.
     """)
 
+    inp = to_mirrormap(inp)
+
     maybes = find_possible_mirror_lines(inp)
     line = find_mirror_row(inp, maybes)
 
@@ -48,7 +52,7 @@ defmodule Advent13Test do
   end
 
   test "SHOULD find mirror line when vertical AND TRANSPOSED" do
-    inp = parse("""
+    [inp] = parse_maps("""
     #.##..##.
     ..#.##.#.
     ##......#
@@ -56,7 +60,9 @@ defmodule Advent13Test do
     ..#.##.#.
     ..##..##.
     #.#.##.#.
-    """, transpose: true)
+    """)
+
+    inp = to_mirrormap(inp, transpose: true)
 
     maybes = find_possible_mirror_lines(inp)
     line = find_mirror_row(inp, maybes)
@@ -65,7 +71,47 @@ defmodule Advent13Test do
   end
 
   test "API SHOULD find mirror line when horizontal" do
+    [inp] = parse_maps("""
+    #...##..#
+    #....#..#
+    ..##..###
+    #####.##.
+    #####.##.
+    ..##..###
+    #....#..#
+    """)
+
+    line = find_mirror_line(inp)
+
+    assert line == {:row, 3}
+  end
+
+  test "API SHOULD find mirror line when vertical" do
+    [inp] = parse_maps("""
+    #.##..##.
+    ..#.##.#.
+    ##......#
+    ##......#
+    ..#.##.#.
+    ..##..##.
+    #.#.##.#.
+    """)
+
+    line = find_mirror_line(inp)
+
+    assert line == {:col, 4}
+  end
+
+  test "Chunking" do
     inp = """
+    #.##..##.
+    ..#.##.#.
+    ##......#
+    ##......#
+    ..#.##.#.
+    ..##..##.
+    #.#.##.#.
+
     #...##..#
     #....#..#
     ..##..###
@@ -75,24 +121,8 @@ defmodule Advent13Test do
     #....#..#
     """
 
-    line = find_mirror_line(inp)
+    maps = IO.inspect(parse_maps(inp))
 
-    assert line == {:row, 3}
-  end
-
-  test "API SHOULD find mirror line when vertical" do
-    inp = """
-    #.##..##.
-    ..#.##.#.
-    ##......#
-    ##......#
-    ..#.##.#.
-    ..##..##.
-    #.#.##.#.
-    """
-
-    line = find_mirror_line(inp)
-
-    assert line == {:col, 4}
+    assert length(maps) == 2
   end
 end
