@@ -122,7 +122,7 @@ end
 
 Everything before the pipe, everything after, shove both into sets, the size of the intersection is the number of winners. Easy!
 
-Part two is wonky and i need to come back and finish it.
+i have now come back to finish part two: it's not bad! i didn't bother getting IDs from the cards themselves, since the card ID is always the line number plus one. Other than that my solution is very similar to Lexi's.
 
 \section{If You Give A Seed A Fertilizer}
 This problem is apparently the hardest one, according to the number of completions. i do not have something that i would consider remotely efficient, but i do have something!
@@ -294,9 +294,40 @@ end
 \end{minted}
 
 I did fail to reverse the arguments in part two and end up with the wrong answer. That was a bit embarrassing. Oh well.
+
 \section{Pipe Maze}
-TBD
 
+Nightmare. This one took me most of a day.
 
+Part one is like...relatively straightforward, i guess: traverse every path out of the starting connector, adding one to the distance of the current connector from the start each time you do so. Then you just take the maximum of that list of values. Not that bad.
 
+Part two is...ugh.
+
+i ended up solving this with, effectively, a computer graphics hack: some point is inside SHAPE if you can cast a ray in some direction and it crosses a border an odd number of times.
+
+So, basically, we just pick every point on the grid and fire a ray diagonally down and to the right. If it crosses a pipe calculated in part one an odd number of times, it's inside the loop. Count them all. Done.
+
+This feels \textit{aggressively} cursed and i have no idea what's "expected" here.
+
+\section{Cosmic Expansion}
+TiL that ranges in Elixir are inclusive.
+
+TiAL that ranges in Elixir can go backwards.
+
+Well, at least once i got part one down, part two was ultra-trivial. :3
+
+I suspect that there is a more functional way to write
+\begin{minted}{elixir}
+acc =
+  if min_row < max_row do
+    Enum.reduce(min_row..(max_row - 1), acc, fn r, acc ->
+      # part one
+      # acc + if r in empty_rows, do: 2, else: 1
+      acc + if r in empty_rows, do: 1000000, else: 1
+    end)
+  else
+    acc
+  end
+\end{minted}
+than i did. Overall i am happy with this solution, though.
 \end{document}

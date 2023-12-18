@@ -26,20 +26,20 @@ defmodule Advent8 do
     # step_servers(pids)
   end
 
-  @spec step_servers(list(pid()), integer()) :: integer()
-  defp step_servers(pids, current_count \\ 1)
-  defp step_servers(pids, current_count) do
-    outs = Enum.map(pids, &(GenServer.call(&1, :step)))
-    end_state? = Enum.all?(outs, fn s -> String.ends_with?(s, "Z") end)
+  # @spec step_servers(list(pid()), integer()) :: integer()
+  # defp step_servers(pids, current_count \\ 1)
+  # defp step_servers(pids, current_count) do
+  #   outs = Enum.map(pids, &(GenServer.call(&1, :step)))
+  #   end_state? = Enum.all?(outs, fn s -> String.ends_with?(s, "Z") end)
 
-    # [outs, _] = GenServer.multi_call(Advent8.Ghost, :tep)
-    # end_state? = Enum.all?(outs, fn { _, s } -> String.ends_with?(s, "Z") end)
+  #   # [outs, _] = GenServer.multi_call(Advent8.Ghost, :tep)
+  #   # end_state? = Enum.all?(outs, fn { _, s } -> String.ends_with?(s, "Z") end)
 
-    if end_state?
-      do current_count
-      else step_servers(pids, current_count+1)
-    end
-  end
+  #   if end_state?
+  #     do current_count
+  #     else step_servers(pids, current_count+1)
+  #   end
+  # end
   # def count_steps(%{ nodes: nodes, steps: [step | steps] }, sym) do
   #   if String.ends_with?(sym, "Z")
   #     do 0
@@ -54,6 +54,41 @@ defmodule Advent8 do
       |> Enum.to_list
   end
 
+  # @spec find_loop_for_start(desert_map(), String.t()) :: %{ length: integer(), phases: list(integer()) }
+  def get_path(map, [step | steps], sym) do
+    stop_condition? = String.ends_with?(sym, "Z")
+    if stop_condition?
+      do []
+      else [next_direction(map, sym, step) | get_path(map, steps ++ [step], next_direction(map, sym, step))]
+    end
+  end
+
+  @spec path_to_pair(list()) :: { integer(), integer() }
+  def path_to_pair(ls) do
+    l = length(ls)
+    { l, l - 1}
+  end
+
+  @spec pair_concat({ integer(), integer() }, { integer(), integer() }) :: { integer(), integer() }
+  # def pair_concat({ a, b }, { c, d }) when c > a, do: pair_concat({ c, d }, { a, b })
+  def pair_concat({ a, b }, { c, d }) do
+    { a * c, a * Integer.mod(d * ((-1) ** (a)), c) + b }
+  end
+
+  def count_it(map) do
+    find_all_starts(map)
+    |> Enum.map(&(get_path(map, map.steps, &1)))
+    |> Enum.map(&path_to_pair/1)
+    |> Enum.reduce(fn (pr, acc) ->
+      IO.puts("Reduce #{inspect(pr)}, #{inspect(acc)}")
+      {x, y} = pair_concat(pr, acc)
+      IO.inspect({x, y})
+      {x, y+1}
+    end)
+  end
+
+  defp next_direction(desert_map, where, :l), do: elem(desert_map.nodes[where], 0)
+  defp next_direction(desert_map, where, :r), do: elem(desert_map.nodes[where], 1)
 
   ##### INPUT PROCESSING #######################################################
 
@@ -104,27 +139,45 @@ defmodule Advent8 do
       Enum.map(seq, fn e -> "\\textcolor{red}{#{e}}" end)
   end
 
+  @spec mkGroup(any(), any(), integer(), integer()) :: list()
   defp mkGroup(_, _, _, 0), do: []
-  defp mkGroup(a, b, c, n) do
-    apart = List.to_string(Enum.to_list(Stream.take(a, 5)))
-    bpart = List.to_string(Enum.to_list(Stream.take(b, 5)))
-    cpart = List.to_string(Enum.to_list(Stream.take(c, 5)))
+  defp mkGroup(a, b, grp, n) do
+    apart = List.to_string(Enum.to_list(Stream.take(a, grp)))
+    bpart = List.to_string(Enum.to_list(Stream.take(b, grp)))
+    # cpart = List.to_string(Enum.to_list(Stream.take(c, 5)))
 
-    out = "\\SeqCompare{#{apart}}{\\SeqCompare{#{bpart}}{#{cpart}}}"
 
-    [out | mkGroup(Stream.drop(a, 5), Stream.drop(b, 5), Stream.drop(c, 5), n-1)]
+    out = "\\SeqCompare{#{apart}}{#{bpart}}"
+
+    [out | mkGroup(Stream.drop(a, grp), Stream.drop(b, grp), grp, n-1)]
   end
 
 
+  @spec mkTexExamples() :: :ok
   def mkTexExamples do
-    a = Stream.cycle(mkAlts(["\\dot{1}", "2", "3", "4", "5"]))
-    b = Stream.cycle(mkAlts(["1", "\\dot{2}", "3", "4"]))
-    c = Stream.cycle(mkAlts(["1", "\\dot{2}", "3"]))
+    # a = Stream.cycle(mkAlts(["\\dot{1}", "2", "3", "4", "5"]))
+    # b = Stream.cycle(mkAlts(["1", "\\dot{2}", "3", "4"]))
+    # c = Stream.cycle(mkAlts(["1", "\\dot{2}", "3"]))
+    a = ["\\dot{1}", "2", "3", "4", "5", "6", "7"]
+    b = ["1", "\\dot{2}", "3", "4"]
 
-    groups = mkGroup(a, b, c, 10)
-    groups = Enum.intersperse(groups, "\\qquad")
+    sa = Stream.cycle(mkAlts(a))
+    sb = Stream.cycle(mkAlts(b))
 
-    Enum.each(groups, &IO.puts/1)
+    grp_count = 20
+    grp_len   = Enum.map([a, b], &length/1) |> Enum.max
+
+    groups = mkGroup(sa, sb, grp_len, grp_count)
+
+    lines = Enum.chunk_every(groups, 5) |>
+      Enum.map(fn line ->
+        contents = Enum.intersperse(line, "\\qquad") |> Enum.join("\n")
+        "\\[ #{contents} \\]"
+      end)
+
+    path = "docs/day_8_7042.inc.tex"
+    File.write!(path, Enum.join(lines, "\n"))
+    IO.puts("Wrote #{path}.")
   end
 
 
