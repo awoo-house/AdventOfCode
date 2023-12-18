@@ -1,0 +1,65 @@
+%arara: lualatex: { shell: yes }
+\documentclass{article}
+
+%%%%% IMPORTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{xparse}
+\usepackage[letterpaper, margin=1in]{geometry}
+\usepackage{mathtools}
+\usepackage{amssymb}
+
+\usepackage{minted}
+
+%%%%% SETUP AND DEFAULTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\setminted{
+  linenos
+}
+
+%%%%% TITLE AND AUTHOR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{Advent of Code 2023-- Day 12 Part 2}
+\author{lexi Huston}
+
+%%%%% THE ACTUAL DOCUMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document} 
+\maketitle
+ 
+\section{Problem}
+
+The problem asks us to solve 1,000 individual, independent problems. We will look at a single one.
+
+Given two inputs:
+
+\begin{itemize}
+  \item A: $ \{a_1, a_2, ... a_n \mid a \in \{.|\#|?\}\}$
+  \item B: $ \{b_1, b_2, ... b_n \mid b \in \mathbb{N} \}$
+\end{itemize}
+
+That is, A is a string of characters that are either \texttt{.}, \texttt{\#}, or \texttt{?}, and B is an ordered set of integers. 
+
+
+Let's define an element $\mathbb{S}_n$ as a a contiguous subset of A, $\{ a_m, a_{m+1}, ..\}\mid \forall a \in \{ \# \}$
+
+Let's define an element $\mathbb{S?}_n$ as a a contiguous subset of A, $\{ a_m, a_{m+1}, ..\}\mid \forall a \in \{ \#, . \}$
+
+Then, $B[y]$ is equal to the length of the element $\mathbb{S}_y$. 
+
+The question marks in A are wildcards, and can be either \texttt{.} or \texttt{\#}. 
+
+$ T_y1(A) $ is a transformation function which replaces each \texttt{?} in A with a specific set \texttt{.} or \texttt{\#} values, such that the length of the resulting elements $\mathbb{S}_y$ is equal to $B[y]$. That is to say, that they solve the given constraints. We must find the number of different valid $T_n(A)$ functions. 
+
+\section{Analysis}
+
+Given a head element $\mathbb{S?_0}$ of length $n$ and a head $B[0]$ of length $m$:
+
+\begin{itemize}
+  \item If $n - m < 0$, then there are no valid $T_0(S?)$ functions, and this path is invalid. 
+  \item If $n - m == 0$, then there is only one valid $T_0(S?)$ function, which is replaces any \texttt{?} with \texttt{\#}.
+  \item If $n - m > 0$, then there are multiple valid $T_n(S?)$.
+\end{itemize}
+
+If $n - m > 0$, then we are in a situation where we have some amount of \texttt{?}, and some amount of \texttt{\#}-- and we need to create a grouping around the existing \texttt{\#} 
+
+\end{document}

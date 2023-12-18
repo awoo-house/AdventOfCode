@@ -1,4 +1,6 @@
 .elixir_ls/
+.metals/
+.vscode/
 
 # The directory Mix will write compiled artifacts to.
 **/_build/
