@@ -11,30 +11,69 @@ defmodule AmmyFifteen do
   def run do
     case File.read("input/day15.in") do
       {:ok, gigantic_string} ->
-        gigantic_string
-        |> String.split(",")
-        |> Enum.reduce(0, fn s, acc ->
-          chars = s |> String.graphemes()
+        boxes =
+          Enum.reduce(0..255, %{}, fn i, acc ->
+            # don't be like Past Ammy and assume that maps are ordered
+            Map.put(acc, i, [])
+          end)
 
-          maybe_minus = String.split("-")
-          maybe_equals = String.split("=")
-          {label, op} = {"", ""}
-          if length(maybe_minus == 2) do
-            label = Enum.at(maybe_minus, 0)
-            op = Enum.at(maybe_minus, 1)
-          else if length(maybe_equals == 2) do
-            label = Enum.at(maybe_equals, 0)
-            op = Enum.at(maybe_equals, 1)
-          else
-            raise "malformed label"
-          end
-          ret =
-            chars
-            |> Enum.reduce(0, fn c, acc2 ->
-              cool_hash_of_char(c, acc2)
+        filled_boxes =
+          gigantic_string
+          |> String.split(",")
+          |> Enum.reduce(boxes, fn s, acc ->
+            maybe_minus = s |> String.split("-")
+            maybe_equals = s |> String.split("=")
+            # minus; we're making the assumption that the input is well-formed
+            if length(maybe_equals) == 2 do
+              label = maybe_equals |> List.first()
+              {val, _} = maybe_equals |> List.last() |> Integer.parse()
+
+              score =
+                label
+                |> String.graphemes()
+                |> Enum.reduce(0, fn c, acc2 ->
+                  cool_hash_of_char(c, acc2)
+                end)
+
+              lenses = Map.get(acc, score)
+
+              acc =
+                case Enum.find_index(lenses, fn t -> elem(t, 0) == label end) do
+                  nil ->
+                    Map.update(acc, score, [{label, val}], &List.insert_at(&1, -1, {label, val}))
+
+                  index ->
+                    lenses = List.replace_at(lenses, index, {label, val})
+                    Map.put(acc, score, lenses)
+                end
+
+              acc
+            else
+              label = maybe_minus |> List.first()
+
+              score =
+                label
+                |> String.graphemes()
+                |> Enum.reduce(0, fn c, acc2 ->
+                  cool_hash_of_char(c, acc2)
+                end)
+
+              # the second element is the empty string, which we can ignore
+              acc = Map.update(acc, score, nil, &Enum.reject(&1, fn {el, _} -> el == label end))
+              acc
+            end
+          end)
+
+        filled_boxes
+        |> Enum.reduce(0, fn {box, lenses}, acc ->
+          ans =
+            lenses
+            |> Enum.with_index()
+            |> Enum.reduce(0, fn {{_, focal_length}, index}, acc2 ->
+              acc2 + (box + 1) * (index + 1) * focal_length
             end)
 
-          acc + ret
+          acc + ans
         end)
         |> IO.inspect()
 
