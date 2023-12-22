@@ -81,4 +81,19 @@ defmodule Advent16Test do
     assert e.position == @east
     assert w.position == @west
   end
+
+  test "example" do
+    inp = ~r"""
+    >|<<<\\....
+    |v-.\\^....
+    .v...|->>>
+    .v...v^.|.
+    .v...v^...
+    .v...v^..\\
+    .v../2\\\\..
+    <->-/vv|..
+    .|<<<2-|.\\
+    .v//.|.v..
+    """
+  end
 end
