@@ -1,21 +1,19 @@
 using DelimitedFiles
-using Pkg
-Pkg.add("StatsBase")
-using StatsBase
 
-dlm = readdlm("./inputs/2.txt", Int)
+@enum Direction up down
 
-col1 = dlm[:, 1] 
-col2 = dlm[:, 2] 
+struct RowState
+  direction::Direction
+  last_value::Int
+end
 
-sorted_col1 = sort(col1)
-sorted_col2 = sort(col2)
+function is_valid_row(row)
+  
+end
 
-pt1_answer = sum(abs.(sorted_col1 .- sorted_col2))
+function run() 
+  data = readdlm("./inputs/3.txt", Int)
+  validity_mat = mapslices(is_valid_row, data; dims=2)
+end
 
-dupe_counts = countmap(sorted_col2)
-
-multi_col = get.([dupe_counts], sorted_col1, 0)
-
-pt2_answer = sum(sorted_col1 .* multi_col)
-
+run()
