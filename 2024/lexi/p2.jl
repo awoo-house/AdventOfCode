@@ -61,6 +61,15 @@ end
 # function is_valid_element(current_state, next_num)::RetType
 #   return current_state
 # end
+function remove_specific(row, idx)
+
+end
+
+
+
+function remove_one(row)
+
+end
 
 function is_valid_row(row)
   initial_value::RetType = undefined
@@ -76,4 +85,4 @@ end
 
 a = run()
 
-findfirst(a)
+sum(a)
