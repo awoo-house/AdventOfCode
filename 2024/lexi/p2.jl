@@ -1,5 +1,7 @@
 using DelimitedFiles
-
+using Pkg
+Pkg.add("Pipe")
+using Pipe
 @enum Direction up down unknown
 
 struct RowState
@@ -62,19 +64,28 @@ end
 #   return current_state
 # end
 function remove_specific(row, idx)
-
+  return [row[i] for i in 1:length(row) if i != idx]
 end
 
-
-
-function remove_one(row)
-
+function try_removing_any_one_idx(row)
+  inputs = [remove_specific(row, i) for i in 1:length(row)]
+  initial_value::RetType = undefined
+  @pipe inputs |>
+    map(f -> foldl(is_valid_element, f; init=initial_value), _) |> 
+    any(f -> typeof(f) === RowState, _)
+  
 end
+
+show(try_removing_any_one_idx([1;5;3;4;8;6]))
 
 function is_valid_row(row)
   initial_value::RetType = undefined
   result = foldl(is_valid_element, row; init=initial_value)
-  return result !== undefined && result !== unsafe 
+  if result === undefined || result === unsafe 
+    return try_removing_any_one_idx(row)
+  else
+    return true
+  end
 end
 
 function run() 
