@@ -9,21 +9,11 @@ function add_ordering(p1::Int, p2::Int, dict::Dict)
   end
 end
 
-function fix_row(r::Vector{Int})
-  fixed_row = []
-  try_again = Set()
-  function add_next(s) 
-    must_come_before = intersect(get!(after_rules, s, Set()), r)
-    if !isempty(must_come_before)
-
-    else 
-      push!(try_again, s)
-    end
-  end
-end
 
 function check_row(r::Vector{Int})
+  # println("Checking $r")
   max_index = length(r)
+  had_to_fix = false
   for checking_index in 1:max_index
     come_before::Set{Int} = Set()
     this_val = r[checking_index]
@@ -33,31 +23,34 @@ function check_row(r::Vector{Int})
     
     must_come_before = intersect(get!(after_rules, this_val, Set()), r)
     if must_come_before != come_before
-      println("$this_val requires that $must_come_before be before it... but only $come_before were. ")
+      # println("$this_val requires that $must_come_before be before it... but only $come_before were. ")
       # part 1
-      return 0
+      # return 0
       # end part 1
       # part 2
       # TODO: Figure out the correct order
-
-      
+      r = fix_row(r)
+      had_to_fix = true
+      break
 
       # end part 2
     else
       # part 1
       # end part 1
       # part 2
-      # return 0
       # end part 2
     end
     
   end
 
-  middle_index = (max_index + 1)//2
+  if !had_to_fix
+    0
+  else
+    middle_index = (max_index + 1)//2
 
-  ret = r[numerator(middle_index)]
-  println("Row $r is valid!! Returning $ret")
-  ret
+    ret = r[numerator(middle_index)]
+    ret
+  end
 
 end
 
@@ -74,7 +67,7 @@ function run_me()
       add_ordering(before, after, before_rules)
       add_ordering(after, before, after_rules)
     elseif contains(r, ",")
-      println("Need to check now for $r")
+      # println("Need to check now for $r")
       v = map(f -> parse(Int, f), split(r, ","))
       total_middle_index_sums += check_row(v)
     else
@@ -86,8 +79,59 @@ function run_me()
   end
 
   println("Answer: $total_middle_index_sums")
-  
 
 end
 
+import Pkg
+# Pkg.add("JuMP")
+# Pkg.add("HiGHS")
+using JuMP
+using HiGHS
+
+function fix_row(r::Vector{Int})
+  # println("Fixing $r")
+  model = Model(HiGHS.Optimizer)
+  set_silent(model)
+  num_indexes = length(r)
+  indices = Dict()
+  vars = Dict()
+  @variable(model, vars[1:num_indexes])
+  
+  for i in 1:num_indexes
+    this_val = r[i]
+    indices[this_val] = i
+    @constraint(model, 1 <= vars[i] <= num_indexes)
+  end
+  # Minimize total diffs in indices
+  @objective(model, Min, sum((vars[i] - i)^2 for i in 1:num_indexes))
+  for i in 1:num_indexes
+    this_val = r[i]
+    
+    must_come_before = intersect(get!(before_rules, this_val, Set()), r)
+    for b in must_come_before
+      var_index_of_b = indices[b]
+      @constraint(model,vars[var_index_of_b] -  vars[i]  >= 1.0)
+    end
+
+  end 
+
+  # println(model)
+
+  optimize!(model)
+  moves = map(f -> round(Int,value(f)), vars)
+  # Initialize a new array to hold the reordered elements
+  result = similar(r)
+
+  for i in 1:num_indexes
+      result[moves[i]] = r[i]
+  end
+  # result = map(f -> result[f], indices_of_result)
+  # println(map(f -> value(f), vars))
+  # new_result = map
+  println("from $r --to-> $result")
+  result
+end
 run_me()
+
+# [v1, v2, v3, v4, v5]
+# vX = 
