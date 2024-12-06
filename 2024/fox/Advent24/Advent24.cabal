@@ -28,6 +28,8 @@ library
       Day1
       Day2
       Day3
+      Day4
+      Day4.Matcher
       Lib
   other-modules:
       Paths_Advent24
@@ -68,4 +70,6 @@ test-suite Advent24-test
   build-depends:
       Advent24
     , base >=4.7 && <5
+    , tasty
+    , tasty-hunit
   default-language: Haskell2010
