@@ -59,3 +59,5 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - Advent24
+    - tasty
+    - tasty-hunit

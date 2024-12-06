@@ -2,7 +2,7 @@ module Lib
     ( someFunc
     ) where
 
-import Day3 (day3)
+import Day4 (day4)
 
 someFunc :: IO ()
-someFunc = day3
+someFunc = day4
